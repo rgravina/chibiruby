@@ -1,9 +1,8 @@
-UNITY_ROOT=./lib/unity
 C_COMPILER=cc
+CFLAGS=-std=c11 -Wall -Wextra -Werror
 BIN_DIR=./bin
 TARGET = chibirb
-
-CFLAGS=-std=c11 -Wall -Wextra -Werror
+UNITY_ROOT=./lib/unity
 SRC_FILES=\
   $(UNITY_ROOT)/src/unity.c \
   $(UNITY_ROOT)/src/unity_fixture.c \
