@@ -1,0 +1,9 @@
+# ChibiRuby
+
+ChibiRuby is a minimal implementation of the [Ruby](http://www.ruby-lang.org/) programming language.
+
+## Purpose
+
+ChibiRuby is being developed as a learning exercise in how to implement interpreter for Ruby in C, from scratch.
+
+[Unity](http://github.com/ThrowTheSwitch/Unity) is used for unit testing.
