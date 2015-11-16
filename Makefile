@@ -19,4 +19,4 @@ default:
 	@$(BIN_DIR)/$(TARGET)
 
 clean:
-	@rm -f $(BIN_DIR)/*.o $(TARGET)
+	@rm -f $(BIN_DIR)/*.o $(BIN_DIR)/$(TARGET)
