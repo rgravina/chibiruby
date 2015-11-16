@@ -6,9 +6,9 @@ UNITY_ROOT=./lib/unity
 SRC_FILES=\
   $(UNITY_ROOT)/src/unity.c \
   $(UNITY_ROOT)/src/unity_fixture.c \
-  src/ProductionCode.c \
-	test/TestProductionCode.c \
-	test/test_runners/TestProductionCode_Runner.c \
+  src/Lexer.c \
+	test/TestLexer.c \
+	test/test_runners/TestLexer_Runner.c \
 	test/test_runners/all_tests.c
 INC_DIRS=-Isrc -I$(UNITY_ROOT)/src
 

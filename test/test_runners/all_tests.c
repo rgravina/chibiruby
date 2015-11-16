@@ -1,11 +1,9 @@
 #include "unity_fixture.h"
 
-static void RunAllTests(void)
-{
-  RUN_TEST_GROUP(ProductionCode);
+static void RunAllTests(void) {
+  RUN_TEST_GROUP(Lexer);
 }
 
-int main(int argc, const char * argv[])
-{
+int main(int argc, const char * argv[]) {
   return UnityMain(argc, argv, RunAllTests);
 }
