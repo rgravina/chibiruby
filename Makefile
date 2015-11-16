@@ -10,9 +10,9 @@ INC_DIRS=-Isrc -I$(UNITY_ROOT)/src
 all: clean default
 
 default:
-	ruby $(UNITY_ROOT)/auto/generate_test_runner.rb test/TestProductionCode.c test/test_runners/TestProductionCode_Runner.c
-	$(C_COMPILER) $(CFLAGS) $(INC_DIRS) $(SRC_FILES) -o $(BIN_DIR)/$(TARGET)
-	$(BIN_DIR)/$(TARGET)
+	@ruby $(UNITY_ROOT)/auto/generate_test_runner.rb test/TestProductionCode.c test/test_runners/TestProductionCode_Runner.c
+	@$(C_COMPILER) $(CFLAGS) $(INC_DIRS) $(SRC_FILES) -o $(BIN_DIR)/$(TARGET)
+	@$(BIN_DIR)/$(TARGET)
 
 clean:
-	rm -f $(BIN_DIR)/*.o $(TARGET)
+	@rm -f $(BIN_DIR)/*.o $(TARGET)
