@@ -1,1 +1,1 @@
-int Lexer_lex(void);
+char* Lexer_lex(char* code);
