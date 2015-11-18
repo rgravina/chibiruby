@@ -1,5 +1,5 @@
 C_COMPILER=cc
-CFLAGS=-std=c11 -Wall -Wextra -Werror
+CFLAGS=-std=c11 -Wall -Wextra
 BIN_DIR=./bin
 TARGET = chibirb
 TARGET_TEST = chibirb_test
