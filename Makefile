@@ -3,17 +3,12 @@ CFLAGS=-std=c11 -Wall -Wextra
 BIN_DIR=./bin
 TARGET = chibirb
 TARGET_TEST = chibirb_test
-UNITY_ROOT=./lib/unity
 SRC_FILES=\
   src/Lexer.c
 SRC_FILES_TEST=\
-  $(UNITY_ROOT)/src/unity.c \
-  $(UNITY_ROOT)/src/unity_fixture.c \
-	test/TestLexer.c \
-	test/test_runners/TestLexer_Runner.c \
-	test/test_runners/all_tests.c \
+	test/test_lexer.c \
 	$(SRC_FILES)
-INC_DIRS=-Isrc -I$(UNITY_ROOT)/src
+INC_DIRS=-Isrc
 
 all: test
 chibirb: clean _chibirb

@@ -5,5 +5,3 @@ ChibiRuby is a minimal implementation of the [Ruby](http://www.ruby-lang.org/) p
 ## Purpose
 
 ChibiRuby is being developed to learn more about Ruby and developing an interpreter for it in C.
-
-[Unity](http://github.com/ThrowTheSwitch/Unity) is used for unit testing.
