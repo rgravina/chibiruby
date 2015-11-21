@@ -3,9 +3,10 @@
 #include "lexer.h"
 
 int tests_run = 0;
+char* code = "10.times do |n|\n  puts n\nend";
 
 static char *test_lexer() {
-  mu_assert("error, string not retured", crb_lexer_lex("foo") == "foo");
+  mu_assert("error, string not retured", crb_lexer_lex(code) == code);
   return 0;
 }
 
