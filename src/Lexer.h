@@ -1,4 +1,4 @@
-char* crb_lexer_lex(char* code);
+void crb_lexer_lex(char* code);
 
 // an integer
 typedef struct INTEGER {

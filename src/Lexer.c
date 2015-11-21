@@ -8,7 +8,7 @@
 extern tINTEGER* tokens[100];
 int tokens_length = 0;
 
-char* crb_lexer_lex(char* code) {
+void crb_lexer_lex(char* code) {
   int len = strlen(code);
   int lineno = 1;
   int token_start_pos = 0;
@@ -29,5 +29,4 @@ char* crb_lexer_lex(char* code) {
       break;
     }
   }
-  return code;
 }
