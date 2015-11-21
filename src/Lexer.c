@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include "Lexer.h"
+#include "lexer.h"
 
 /* An integer */
 struct tINTEGER {
@@ -8,7 +8,7 @@ struct tINTEGER {
   char* value;
 };
 
-char* Lexer_lex(char* code) {
+char* crb_lexer_lex(char* code) {
   //int len = strlen(code);
   //int current_pos = 0;
   // for (int i = 0; i < len; i++) {

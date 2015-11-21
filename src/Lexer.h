@@ -1,1 +1,1 @@
-char* Lexer_lex(char* code);
+char* crb_lexer_lex(char* code);

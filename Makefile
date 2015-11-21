@@ -4,7 +4,7 @@ BIN_DIR=./bin
 TARGET = chibirb
 TARGET_TEST = chibirb_test
 SRC_FILES=\
-  src/Lexer.c
+  src/lexer.c
 SRC_FILES_TEST=\
 	test/test_lexer.c \
 	$(SRC_FILES)

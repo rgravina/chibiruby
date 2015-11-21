@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include "minunit.h"
-#include "Lexer.h"
- 
+#include "lexer.h"
+
 int tests_run = 0;
- 
+
 static char *test_lexer() {
-  mu_assert("error, string not retured", Lexer_lex("foo") == "foo");
+  mu_assert("error, string not retured", crb_lexer_lex("foo") == "foo");
   return 0;
 }
 
