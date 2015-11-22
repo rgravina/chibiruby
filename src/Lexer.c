@@ -22,15 +22,19 @@ void crb_lexer_lex(char* code) {
     if (isdigit(code[i])) {
       token_end_pos++;
     } else {
-      tINTEGER* token = (tINTEGER*)malloc(sizeof(tINTEGER));
+      Token* token = (Token*)malloc(sizeof(Token));
+      Integer* integer = (Integer*)malloc(sizeof(Integer));
+      token->token = integer;
       int token_length = token_end_pos-token_start_pos;
       token->lineno = lineno;
       token->start = token_start_pos;
-      token->value = (char *)malloc(sizeof(char) * token_length+1);
-      token->value[token_length] = '\0';
-      strncpy(token->value, code+token_start_pos, token_length);
+      token->token->value = (char *)malloc(sizeof(char) * token_length+1);
+      token->next = NULL;
+      token->token->value[token_length] = '\0';
+      strncpy(token->token->value, code+token_start_pos, token_length);
       token_start_pos = token_end_pos;
-      lexer->tokens[lexer->tokens_length++] = token;
+      lexer->tokens[lexer->tokens_length] = token;
+      lexer->tokens_length++;
       break;
     }
   }

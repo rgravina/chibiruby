@@ -2,14 +2,19 @@ void crb_init_lexer();
 void crb_free_lexer();
 void crb_lexer_lex(char* code);
 
-typedef struct INTEGER {
+typedef struct integer {
+  char* value;
+} Integer;
+
+typedef struct token {
+  Integer* token;
   int lineno;
   int start;
-  char* value;
-} tINTEGER;
+  struct token* next;
+} Token;
 
 typedef struct lexer {
-  tINTEGER* tokens[100];
+  Token* tokens[100];
   int tokens_length;
 } Lexer;
 
