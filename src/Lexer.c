@@ -4,9 +4,14 @@
 #include <ctype.h>
 #include "lexer.h"
 
-// token array
-extern tINTEGER* tokens[100];
-int tokens_length = 0;
+void crb_init_lexer() {
+  lexer = (Lexer*)malloc(sizeof(Lexer));
+  lexer->tokens_length = 0;
+}
+
+void crb_free_lexer() {
+  free(lexer);
+}
 
 void crb_lexer_lex(char* code) {
   int len = strlen(code);
@@ -25,7 +30,7 @@ void crb_lexer_lex(char* code) {
       token->value[token_length] = '\0';
       strncpy(token->value, code+token_start_pos, token_length);
       token_start_pos = token_end_pos;
-      tokens[tokens_length++] = token;
+      lexer->tokens[lexer->tokens_length++] = token;
       break;
     }
   }

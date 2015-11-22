@@ -29,9 +29,9 @@ pp Ripper.lex(code)
 */
 static char *test_lexer() {
   crb_lexer_lex(code);
-  mu_assert("token line number incorrect", tokens[0]->lineno == 1);
-  mu_assert("token start incorrect", tokens[0]->start == 0);
-  mu_assert("token not parsed correctly", strcmp(tokens[0]->value,"10") == 0);
+  mu_assert("token line number incorrect", lexer->tokens[0]->lineno == 1);
+  mu_assert("token start incorrect", lexer->tokens[0]->start == 0);
+  mu_assert("token not parsed correctly", strcmp(lexer->tokens[0]->value, "10") == 0);
   return 0;
 }
 
@@ -41,6 +41,7 @@ static char *all_tests() {
 }
 
 int main() {
+  crb_init_lexer();
   char *result = all_tests();
   if (result != 0) {
     printf("%s\n", result);
@@ -49,6 +50,7 @@ int main() {
     printf("ALL TESTS PASSED\n");
   }
   printf("Tests run: %d\n", tests_run);
+  crb_free_lexer();
 
   return result != 0;
 }
