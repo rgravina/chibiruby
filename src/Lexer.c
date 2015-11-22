@@ -4,9 +4,14 @@
 #include <ctype.h>
 #include "lexer.h"
 
+Token* new_token();
+
 void crb_init_lexer() {
   lexer = (Lexer*)malloc(sizeof(Lexer));
-  lexer->tokens_length = 0;
+  lexer->num_tokens = 0;
+  lexer->curr_lineno = 1;
+  lexer->curr_start_pos = 0;
+  lexer->curr_end_pos = 0;
 }
 
 void crb_free_lexer() {
@@ -15,27 +20,29 @@ void crb_free_lexer() {
 
 void crb_lexer_lex(char* code) {
   int len = strlen(code);
-  int lineno = 1;
-  int token_start_pos = 0;
-  int token_end_pos = 0;
   for (int i = 0; i < len; i++) {
     if (isdigit(code[i])) {
-      token_end_pos++;
+      lexer->curr_end_pos++;
     } else {
-      Token* token = (Token*)malloc(sizeof(Token));
-      Integer* integer = (Integer*)malloc(sizeof(Integer));
-      token->token = integer;
-      int token_length = token_end_pos-token_start_pos;
-      token->lineno = lineno;
-      token->start = token_start_pos;
+      Token* token = new_token();
+      int token_length = lexer->curr_end_pos - lexer->curr_start_pos;
       token->token->value = (char *)malloc(sizeof(char) * token_length+1);
-      token->next = NULL;
       token->token->value[token_length] = '\0';
-      strncpy(token->token->value, code+token_start_pos, token_length);
-      token_start_pos = token_end_pos;
+      strncpy(token->token->value, code+lexer->curr_start_pos, token_length);
+      lexer->curr_start_pos = lexer->curr_end_pos;
       lexer->token = token;
-      lexer->tokens_length++;
+      lexer->num_tokens++;
       break;
     }
   }
+}
+
+Token* new_token() {
+  Token* token = (Token*)malloc(sizeof(Token));
+  Integer* integer = (Integer*)malloc(sizeof(Integer));
+  token->token = integer;
+  token->start = lexer->curr_start_pos;
+  token->lineno = lexer->curr_lineno;
+  token->next = NULL;
+  return token;
 }

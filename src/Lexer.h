@@ -15,7 +15,10 @@ typedef struct token {
 
 typedef struct lexer {
   Token* token;
-  int tokens_length;
+  int num_tokens;
+  int curr_lineno;
+  int curr_start_pos;
+  int curr_end_pos;
 } Lexer;
 
 Lexer* lexer;
