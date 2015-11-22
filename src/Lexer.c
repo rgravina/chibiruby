@@ -33,7 +33,7 @@ void crb_lexer_lex(char* code) {
       token->token->value[token_length] = '\0';
       strncpy(token->token->value, code+token_start_pos, token_length);
       token_start_pos = token_end_pos;
-      lexer->tokens[lexer->tokens_length] = token;
+      lexer->token = token;
       lexer->tokens_length++;
       break;
     }
