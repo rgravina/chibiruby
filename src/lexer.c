@@ -7,6 +7,8 @@
 Token* new_token(char* code);
 void add_token(Token* token);
 char peek(char* code);
+void pushback();
+void print_token(Token* token);
 
 void crb_init_lexer() {
   lexer = (Lexer*)malloc(sizeof(Lexer));
@@ -43,19 +45,28 @@ void crb_lexer_lex(char* code) {
           lexer->curr_type = FLOAT;
           lexer->curr_end_pos++;
         } else {
-          //pushback();
+          Token* token = new_token(code);
+          add_token(token);
+          pushback();
         }
+      } else {
+        lexer->curr_type = PERIOD;
+        lexer->curr_end_pos++;
+        Token* token = new_token(code);
+        add_token(token);
+        break;
       }
     } else {
-      lexer->in_token = false;
       Token* token = new_token(code);
       add_token(token);
-      break;
     }
   }
 }
 
 void add_token(Token* token) {
+  //print_token(token);
+  lexer->in_token = false;
+  lexer->curr_type = NONE;
   lexer->curr_start_pos = lexer->curr_end_pos;
   if (lexer->head == NULL) {
     lexer->head = lexer->tail = token;
@@ -79,6 +90,18 @@ Token* new_token(char* code) {
   return token;
 }
 
+static const char *TypeString[] = {
+  "None", "Integer", "Float", "Period",
+};
+void print_token(Token* token) {
+  printf("***** token (%s) ****\n", TypeString[token->type]);
+}
+
 char peek(char* code) {
   return code[lexer->curr_pos+1];
+}
+
+void pushback() {
+  lexer->in_token = false;
+  lexer->curr_pos--;
 }
