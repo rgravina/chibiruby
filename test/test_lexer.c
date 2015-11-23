@@ -92,8 +92,44 @@ static char *test_lexer() {
   token = token->next;
   mu_assert(token->lineno == 1, "token line number incorrect");
   mu_assert(token->start == 15, "token start incorrect");
+  mu_assert(token->type == NEWLINE, "token type not set correctly");
+  mu_assert(strcmp(token->value, "\n") == 0, "token not parsed correctly");
+
+  token = token->next;
+  mu_assert(token->lineno == 2, "token line number incorrect");
+  mu_assert(token->start == 16, "token start incorrect");
   mu_assert(token->type == SPACE, "token type not set correctly");
-  mu_assert(strcmp(token->value, "\n  ") == 0, "token not parsed correctly");
+  mu_assert(strcmp(token->value, "  ") == 0, "token not parsed correctly");
+
+  token = token->next;
+  mu_assert(token->lineno == 2, "token line number incorrect");
+  mu_assert(token->start == 18, "token start incorrect");
+  mu_assert(token->type == IDENTIFIER, "token type not 'identifier'");
+  mu_assert(strcmp(token->value, "puts") == 0, "token not parsed correctly");
+
+  token = token->next;
+  mu_assert(token->lineno == 2, "token line number incorrect");
+  mu_assert(token->start == 22, "token start incorrect");
+  mu_assert(token->type == SPACE, "token type not set correctly");
+  mu_assert(strcmp(token->value, " ") == 0, "token not parsed correctly");
+
+  token = token->next;
+  mu_assert(token->lineno == 2, "token line number incorrect");
+  mu_assert(token->start == 23, "token start incorrect");
+  mu_assert(token->type == IDENTIFIER, "token type not 'identifier'");
+  mu_assert(strcmp(token->value, "n") == 0, "token not parsed correctly");
+
+  token = token->next;
+  mu_assert(token->lineno == 2, "token line number incorrect");
+  mu_assert(token->start == 24, "token start incorrect");
+  mu_assert(token->type == NEWLINE, "token type not set correctly");
+  mu_assert(strcmp(token->value, "\n") == 0, "token not parsed correctly");
+
+  token = token->next;
+  mu_assert(token->lineno == 3, "token line number incorrect");
+  mu_assert(token->start == 25, "token start incorrect");
+  mu_assert(token->type == KEYWORD, "token type not set correctly");
+  mu_assert(strcmp(token->value, "end") == 0, "token not parsed correctly");
 
   crb_free_lexer();
   return 0;

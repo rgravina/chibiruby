@@ -96,6 +96,12 @@ void crb_lexer_lex(char* code) {
         lexer->curr_end_pos++;
         Token* token = new_token(code);
         add_token(token);
+      } else if (curr_char == '\n') {
+        lexer->curr_type = NEWLINE;
+        lexer->curr_end_pos++;
+        Token* token = new_token(code);
+        add_token(token);
+        lexer->curr_lineno++;
       } else if (isspace(curr_char)) {
         lexer->curr_type = SPACE;
         lexer->in_token = true;
@@ -111,6 +117,15 @@ void crb_lexer_lex(char* code) {
         lexer->curr_end_pos++;
       }
     }
+  }
+  // add the final token if there is one
+  if (lexer->in_token == true) {
+    Token* token = new_token(code);
+    // FIXME: do this in new_token
+    if (is_keyword(token)) {
+      token->type = KEYWORD;
+    }
+    add_token(token);
   }
 }
 
@@ -142,7 +157,7 @@ Token* new_token(char* code) {
 }
 
 static const char *TypeString[] = {
-  "None", "Integer", "Float", "Period", "Identifier", "Space", "Keyword", "Operator"
+  "None", "Integer", "Float", "Period", "Identifier", "Space", "Keyword", "Operator", "Newline"
 };
 void print_token(Token* token) {
   printf("***** token (%s) ****\n", TypeString[token->type]);
@@ -160,7 +175,7 @@ void pushback() {
 }
 
 bool is_keyword(Token* token) {
-  if (strcmp(token->value, "do") == 0) {
+  if (strcmp(token->value, "do") == 0 || strcmp(token->value, "end") == 0) {
     return true;
   }
   return false;
