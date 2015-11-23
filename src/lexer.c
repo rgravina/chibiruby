@@ -6,6 +6,7 @@
 
 Token* new_token(char* code);
 void add_token(Token* token);
+char peek(char* code);
 
 void crb_init_lexer() {
   lexer = (Lexer*)malloc(sizeof(Lexer));
@@ -14,6 +15,7 @@ void crb_init_lexer() {
   lexer->in_token = false;
   lexer->num_tokens = 0;
   lexer->curr_lineno = 1;
+  lexer->curr_pos = 0;
   lexer->curr_start_pos = 0;
   lexer->curr_end_pos = 0;
 }
@@ -25,14 +27,25 @@ void crb_free_lexer() {
 
 void crb_lexer_lex(char* code) {
   int len = strlen(code);
-  for (int i = 0; i < len; i++) {
-    if (isdigit(code[i])) {
+  for (lexer->curr_pos = 0; lexer->curr_pos < len; lexer->curr_pos++) {
+    if (isdigit(code[lexer->curr_pos])) {
       if (lexer->in_token == false) {
         // start of number
         lexer->in_token = true;
         lexer->curr_type = INTEGER;
       }
       lexer->curr_end_pos++;
+    } else if (code[lexer->curr_pos] == '.') {
+      char next_char = peek(code);
+      if (lexer->curr_type == INTEGER) {
+        // decimal point
+        if (isdigit(next_char)) {
+          lexer->curr_type = FLOAT;
+          lexer->curr_end_pos++;
+        } else {
+          //pushback();
+        }
+      }
     } else {
       lexer->in_token = false;
       Token* token = new_token(code);
@@ -64,4 +77,8 @@ Token* new_token(char* code) {
   token->type = lexer->curr_type;
   strncpy(token->value, code+lexer->curr_start_pos, token_length);
   return token;
+}
+
+char peek(char* code) {
+  return code[lexer->curr_pos+1];
 }

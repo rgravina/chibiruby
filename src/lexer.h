@@ -4,7 +4,7 @@ void crb_init_lexer();
 void crb_free_lexer();
 void crb_lexer_lex(char* code);
 
-typedef enum type {INTEGER} Type;
+typedef enum type {INTEGER, FLOAT} Type;
 
 typedef struct token {
   char* value;
@@ -21,6 +21,7 @@ typedef struct lexer {
   bool in_token;
   Type curr_type;
   int curr_lineno;
+  int curr_pos;
   int curr_start_pos;
   int curr_end_pos;
 } Lexer;
