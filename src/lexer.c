@@ -123,7 +123,7 @@ Token* new_token(char* code) {
 }
 
 static const char *TypeString[] = {
-  "None", "Integer", "Float", "Period", "Identifier", "Space", "Keyword"
+  "None", "Integer", "Float", "Period", "Identifier", "Space", "Keyword", "Operator"
 };
 void print_token(Token* token) {
   printf("***** token (%s) ****\n", TypeString[token->type]);
