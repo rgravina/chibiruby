@@ -22,6 +22,7 @@ typedef struct lexer {
   Type curr_type;
   int curr_lineno;
   int curr_pos;
+  int newline_last_seen_pos;
   int curr_start_pos;
   int curr_end_pos;
 } Lexer;

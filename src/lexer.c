@@ -20,6 +20,7 @@ void crb_init_lexer() {
   lexer->num_tokens = 0;
   lexer->curr_lineno = 1;
   lexer->curr_pos = 0;
+  lexer->newline_last_seen_pos = 0;
   lexer->curr_start_pos = 0;
   lexer->curr_end_pos = 0;
 }
@@ -59,6 +60,7 @@ void crb_lexer_lex(char* code) {
       } else if (lexer->curr_type == SPACE) {
         if (isspace(curr_char)) {
           if (curr_char == '\n') {
+            lexer->newline_last_seen_pos = lexer->curr_pos+1;
             lexer->curr_lineno++;
           }
           lexer->curr_end_pos++;
@@ -98,6 +100,7 @@ void crb_lexer_lex(char* code) {
         lexer->curr_end_pos++;
         Token* token = new_token(code);
         add_token(token);
+        lexer->newline_last_seen_pos = lexer->curr_pos+1;
         lexer->curr_lineno++;
       } else if (isspace(curr_char)) {
         lexer->curr_type = SPACE;
@@ -138,7 +141,7 @@ void add_token(Token* token) {
 
 Token* new_token(char* code) {
   Token* token = (Token*)malloc(sizeof(Token));
-  token->start = lexer->curr_start_pos;
+  token->start = (lexer->curr_start_pos - lexer->newline_last_seen_pos);
   token->lineno = lexer->curr_lineno;
   token->next = NULL;
   int token_length = lexer->curr_end_pos - lexer->curr_start_pos;
