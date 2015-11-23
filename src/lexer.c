@@ -100,6 +100,7 @@ static const char *TypeString[] = {
 };
 void print_token(Token* token) {
   printf("***** token (%s) ****\n", TypeString[token->type]);
+  printf("Start Pos: (%d)\n", token->start);
 }
 
 char peek(char* code) {
