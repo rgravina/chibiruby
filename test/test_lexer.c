@@ -32,8 +32,8 @@ static char *test_lexer() {
 
   crb_init_lexer();
   crb_lexer_lex(code);
-//  mu_assert(lexer->num_tokens == 3, "token count incorrect");
-//  mu_assert(lexer->in_token == false, "in_token flag not set to false after processing token");
+  mu_assert(lexer->num_tokens == 16, "token count incorrect");
+  mu_assert(lexer->in_token == false, "in_token flag not set to false after processing token");
 
   token = lexer->head;
   mu_assert(token->lineno == 1, "token line number incorrect");
