@@ -70,9 +70,6 @@ void crb_lexer_lex(char* code) {
       } else if (lexer->curr_type == IDENTIFIER) {
         if (isspace(curr_char) || curr_char == '|') {
           Token* token = new_token(code);
-          if (is_keyword(token)) {
-            token->type = KEYWORD;
-          }
           add_token(token);
           pushback();
         } else {
@@ -121,10 +118,6 @@ void crb_lexer_lex(char* code) {
   // add the final token if there is one
   if (lexer->in_token == true) {
     Token* token = new_token(code);
-    // FIXME: do this in new_token
-    if (lexer->curr_type == IDENTIFIER && is_keyword(token)) {
-      token->type = KEYWORD;
-    }
     add_token(token);
   }
 }
@@ -151,8 +144,11 @@ Token* new_token(char* code) {
   int token_length = lexer->curr_end_pos - lexer->curr_start_pos;
   token->value = (char *)malloc(sizeof(char) * token_length+1);
   token->value[token_length] = '\0';
-  token->type = lexer->curr_type;
   strncpy(token->value, code+lexer->curr_start_pos, token_length);
+  token->type = lexer->curr_type;
+  if (token->type == IDENTIFIER && is_keyword(token)) {
+    token->type = KEYWORD;
+  }
   return token;
 }
 
