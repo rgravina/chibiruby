@@ -7,6 +7,9 @@ int tests_run = 0;
 /*
  * Result of running the above code in Ruby's Ripper.lex
  *
+require 'ripper'
+require 'pp'
+code = "10.times do |n|\n  puts n\nend"
 pp Ripper.lex(code)
 [[[1, 0], :on_int, "10"],
  [[1, 2], :on_period, "."],
