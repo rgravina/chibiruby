@@ -122,7 +122,7 @@ void crb_lexer_lex(char* code) {
   if (lexer->in_token == true) {
     Token* token = new_token(code);
     // FIXME: do this in new_token
-    if (is_keyword(token)) {
+    if (lexer->curr_type == IDENTIFIER && is_keyword(token)) {
       token->type = KEYWORD;
     }
     add_token(token);
