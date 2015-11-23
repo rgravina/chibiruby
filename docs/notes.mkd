@@ -1,0 +1,3 @@
+# Lexer
+* Why does ruby have 'ignored newlines'? (`on_ignored_nl`) v.s. 'newlines' (`on_nl`)?
+* Why is whitespace given a token (containing all of the whitespace)?
