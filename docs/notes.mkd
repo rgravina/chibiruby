@@ -1,3 +1,4 @@
 # Lexer
 * Why does ruby have 'ignored newlines'? (`on_ignored_nl`) v.s. 'newlines' (`on_nl`)?
 * Why is whitespace given a token (`on_sp`) containing all of the whitespace as its value?
+* Need hash table for keywords, and Ruby uses `gperf` and a `keywords` file to do it.
