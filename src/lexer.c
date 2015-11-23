@@ -68,7 +68,7 @@ void crb_lexer_lex(char* code) {
           pushback();
         }
       } else if (lexer->curr_type == IDENTIFIER) {
-        if (isspace(curr_char)) {
+        if (isspace(curr_char) || curr_char == '|') {
           Token* token = new_token(code);
           if (is_keyword(token)) {
             token->type = KEYWORD;
@@ -100,6 +100,11 @@ void crb_lexer_lex(char* code) {
         lexer->curr_type = SPACE;
         lexer->in_token = true;
         lexer->curr_end_pos++;
+      } else if (curr_char == '|') {
+        lexer->curr_type = OPERATOR;
+        lexer->curr_end_pos++;
+        Token* token = new_token(code);
+        add_token(token);
       } else {
         lexer->curr_type = IDENTIFIER;
         lexer->in_token = true;
