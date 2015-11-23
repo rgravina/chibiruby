@@ -23,7 +23,12 @@ void crb_init_lexer() {
 }
 
 void crb_free_lexer() {
-  //TODO: free each token
+  Token* token = lexer->head;
+  while (token != NULL) {
+    Token* temp = token;
+    token = token->next;
+    free(temp);
+  }
   free(lexer);
 }
 

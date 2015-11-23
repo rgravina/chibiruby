@@ -28,6 +28,7 @@ pp Ripper.lex(code)
 */
 static char *test_lexer() {
   char* code = "10.times do |n|\n  puts n\nend";
+  crb_init_lexer();
   crb_lexer_lex(code);
 
   mu_assert(lexer->head->lineno == 1, "token line number incorrect");
@@ -38,6 +39,7 @@ static char *test_lexer() {
 
   mu_assert(lexer->head->next->type == PERIOD, "token type not set correctly");
   mu_assert(lexer->in_token == false, "in_token flag not set to false after processing token");
+  crb_free_lexer();
   return 0;
 }
 
@@ -47,7 +49,6 @@ static char *all_tests() {
 }
 
 int main() {
-  crb_init_lexer();
   char *result = all_tests();
   if (result != 0) {
     printf("%s\n", result);
@@ -56,7 +57,5 @@ int main() {
     printf("ALL TESTS PASSED\n");
   }
   printf("Tests run: %d\n", tests_run);
-  crb_free_lexer();
-
   return result != 0;
 }
