@@ -28,19 +28,23 @@ pp Ripper.lex(code)
 */
 static char *test_lexer() {
   char* code = "10.times do |n|\n  puts n\nend";
+  Token* token;
+
   crb_init_lexer();
   crb_lexer_lex(code);
   mu_assert(lexer->num_tokens == 2, "token count incorrect");
   mu_assert(lexer->in_token == false, "in_token flag not set to false after processing token");
 
-  mu_assert(lexer->head->lineno == 1, "token line number incorrect");
-  mu_assert(lexer->head->start == 0, "token start incorrect");
-  mu_assert(strcmp(lexer->head->value, "10") == 0, "token not parsed correctly");
-  mu_assert(lexer->head->type == INTEGER, "token type not set correctly");
+  token = lexer->head;
+  mu_assert(token->lineno == 1, "token line number incorrect");
+  mu_assert(token->start == 0, "token start incorrect");
+  mu_assert(strcmp(token->value, "10") == 0, "token not parsed correctly");
+  mu_assert(token->type == INTEGER, "token type not set correctly");
 
-  mu_assert(lexer->tail->lineno == 1, "token line number incorrect");
-  mu_assert(lexer->tail->start == 2, "token start incorrect");
-  mu_assert(lexer->tail->type == PERIOD, "token type not set correctly");
+  token = token->next;
+  mu_assert(token->lineno == 1, "token line number incorrect");
+  mu_assert(token->start == 2, "token start incorrect");
+  mu_assert(token->type == PERIOD, "token type not set correctly");
   crb_free_lexer();
   return 0;
 }
