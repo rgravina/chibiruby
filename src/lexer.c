@@ -39,64 +39,78 @@ void crb_lexer_lex(char* code) {
   for (lexer->curr_pos = 0; lexer->curr_pos < len; lexer->curr_pos++) {
     char curr_char = code[lexer->curr_pos];
 
-    if (isdigit(curr_char)) {
-      if (lexer->in_token == false) {
-        // start of number
-        lexer->in_token = true;
-        lexer->curr_type = INTEGER;
-      }
-      lexer->curr_end_pos++;
-    } else if (curr_char == '.') {
-      char next_char = peek(code);
-      if (lexer->curr_type == INTEGER) {
-        // decimal point
+    //
+    // Handle detecting the end of token (or continuing it)
+    //
+    if (lexer->in_token == true) {
+      // handle numbers which require some lookahead
+      if (lexer->curr_type == INTEGER && curr_char == '.') {
+        char next_char = peek(code);
         if (isdigit(next_char)) {
+          // it's a float, so keep going
           lexer->curr_type = FLOAT;
+          lexer->curr_end_pos++;
+        } else {
+          // add integer, and go back before the period
+          Token* token = new_token(code);
+          add_token(token);
+          pushback();
+        }
+      } else if (lexer->curr_type == SPACE) {
+        if (isspace(curr_char)) {
+          if (curr_char == '\n') {
+            lexer->curr_lineno++;
+          }
           lexer->curr_end_pos++;
         } else {
           Token* token = new_token(code);
           add_token(token);
           pushback();
         }
-      } else {
-        lexer->curr_type = PERIOD;
-        lexer->curr_end_pos++;
-        Token* token = new_token(code);
-        add_token(token);
-      }
-    } else {
-      if (lexer->in_token == false) {
-        lexer->curr_type = IDENTIFIER;
-        lexer->in_token = true;
-      }
-      if (isspace(curr_char)) {
-        if (lexer->in_token == true) {
+      } else if (lexer->curr_type == IDENTIFIER) {
+        if (isspace(curr_char)) {
           Token* token = new_token(code);
           if (is_keyword(token)) {
             token->type = KEYWORD;
           }
           add_token(token);
-        }
-        lexer->curr_type = SPACE;
-        lexer->in_token = true;
-        if (curr_char == '\n') {
-          lexer->curr_lineno++;
+          pushback();
+        } else {
+          lexer->curr_end_pos++;
         }
       } else {
-        if (lexer->curr_type == SPACE) {
-          Token* token = new_token(code);
-          add_token(token);
-          lexer->curr_type = NONE;
-          lexer->in_token = false;
-        }
+        // just keep going with this token then
+        lexer->curr_end_pos++;
       }
-      lexer->curr_end_pos++;
+    }
+    //
+    // Handle the start of a new token
+    //
+    else {
+      if (isdigit(curr_char)) {
+        lexer->curr_type = INTEGER;
+        lexer->in_token = true;
+        lexer->curr_end_pos++;
+      } else if (curr_char == '.') {
+        lexer->curr_type = PERIOD;
+        lexer->curr_end_pos++;
+        Token* token = new_token(code);
+        add_token(token);
+      } else if (isspace(curr_char)) {
+        lexer->curr_type = SPACE;
+        lexer->in_token = true;
+        lexer->curr_end_pos++;
+      } else {
+        lexer->curr_type = IDENTIFIER;
+        lexer->in_token = true;
+        lexer->curr_end_pos++;
+      }
     }
   }
 }
 
 void add_token(Token* token) {
-  //print_token(token);
+//  print_token(token);
   lexer->in_token = false;
   lexer->curr_type = NONE;
   lexer->curr_start_pos = lexer->curr_end_pos;
