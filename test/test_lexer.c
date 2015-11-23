@@ -32,6 +32,7 @@ static char *test_lexer() {
   mu_assert(lexer->head->lineno == 1, "token line number incorrect");
   mu_assert(lexer->head->start == 0, "token start incorrect");
   mu_assert(strcmp(lexer->head->token->value, "10") == 0, "token not parsed correctly");
+  mu_assert(lexer->num_tokens == 1, "token count incorrect");
   return 0;
 }
 
