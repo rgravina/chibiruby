@@ -9,6 +9,7 @@ void add_token(Token* token);
 
 void crb_init_lexer() {
   lexer = (Lexer*)malloc(sizeof(Lexer));
+  lexer->head = NULL;
   lexer->num_tokens = 0;
   lexer->curr_lineno = 1;
   lexer->curr_start_pos = 0;
@@ -35,7 +36,12 @@ void crb_lexer_lex(char* code) {
 
 void add_token(Token* token) {
   lexer->curr_start_pos = lexer->curr_end_pos;
-  lexer->token = token;
+  if (lexer->head == NULL) {
+    // root
+    lexer->head = token;
+  } else {
+    // place token at the end
+  }
   lexer->num_tokens++;
 }
 

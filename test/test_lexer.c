@@ -29,9 +29,9 @@ pp Ripper.lex(code)
 */
 static char *test_lexer() {
   crb_lexer_lex(code);
-  mu_assert(lexer->token->lineno == 1, "token line number incorrect");
-  mu_assert(lexer->token->start == 0, "token start incorrect");
-  mu_assert(strcmp(lexer->token->token->value, "10") == 0, "token not parsed correctly");
+  mu_assert(lexer->head->lineno == 1, "token line number incorrect");
+  mu_assert(lexer->head->start == 0, "token start incorrect");
+  mu_assert(strcmp(lexer->head->token->value, "10") == 0, "token not parsed correctly");
   return 0;
 }
 
