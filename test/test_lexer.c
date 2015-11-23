@@ -32,8 +32,8 @@ static char *test_lexer() {
 
   crb_init_lexer();
   crb_lexer_lex(code);
-  mu_assert(lexer->num_tokens == 2, "token count incorrect");
-  mu_assert(lexer->in_token == false, "in_token flag not set to false after processing token");
+//  mu_assert(lexer->num_tokens == 3, "token count incorrect");
+//  mu_assert(lexer->in_token == false, "in_token flag not set to false after processing token");
 
   token = lexer->head;
   mu_assert(token->lineno == 1, "token line number incorrect");
@@ -44,13 +44,15 @@ static char *test_lexer() {
   token = token->next;
   mu_assert(token->lineno == 1, "token line number incorrect");
   mu_assert(token->start == 2, "token start incorrect");
+  mu_assert(strcmp(token->value, ".") == 0, "token not parsed correctly");
   mu_assert(token->type == PERIOD, "token type not set correctly");
 
-  // token = token->next;
-  // mu_assert(token->lineno == 1, "token line number incorrect");
-  // mu_assert(token->start == 3, "token start incorrect");
-  // mu_assert(token->type == IDENTIFIER, "token type not set correctly");
-  //
+  token = token->next;
+  mu_assert(token->lineno == 1, "token line number incorrect");
+  mu_assert(token->start == 3, "token start incorrect");
+  mu_assert(strcmp(token->value, "times") == 0, "token not parsed correctly");
+  mu_assert(token->type == IDENTIFIER, "token type not set correctly");
+
   crb_free_lexer();
   return 0;
 }
