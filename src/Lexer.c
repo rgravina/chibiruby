@@ -15,6 +15,7 @@ void crb_init_lexer() {
 }
 
 void crb_free_lexer() {
+  //TODO: free each token
   free(lexer);
 }
 
