@@ -35,14 +35,16 @@ void crb_free_lexer() {
 void crb_lexer_lex(char* code) {
   int len = strlen(code);
   for (lexer->curr_pos = 0; lexer->curr_pos < len; lexer->curr_pos++) {
-    if (isdigit(code[lexer->curr_pos])) {
+    char curr_char = code[lexer->curr_pos];
+
+    if (isdigit(curr_char)) {
       if (lexer->in_token == false) {
         // start of number
         lexer->in_token = true;
         lexer->curr_type = INTEGER;
       }
       lexer->curr_end_pos++;
-    } else if (code[lexer->curr_pos] == '.') {
+    } else if (curr_char == '.') {
       char next_char = peek(code);
       if (lexer->curr_type == INTEGER) {
         // decimal point
