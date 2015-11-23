@@ -53,6 +53,24 @@ static char *test_lexer() {
   mu_assert(strcmp(token->value, "times") == 0, "token not parsed correctly");
   mu_assert(token->type == IDENTIFIER, "token type not set correctly");
 
+  token = token->next;
+  mu_assert(token->lineno == 1, "token line number incorrect");
+  mu_assert(token->start == 8, "token start incorrect");
+  mu_assert(strcmp(token->value, " ") == 0, "token not parsed correctly");
+  mu_assert(token->type == SPACE, "token type not set correctly");
+
+  token = token->next;
+  mu_assert(token->lineno == 1, "token line number incorrect");
+  mu_assert(token->start == 9, "token start incorrect");
+  mu_assert(strcmp(token->value, "do") == 0, "token not parsed correctly");
+  mu_assert(token->type == KEYWORD, "token type not set correctly");
+
+  token = token->next;
+  mu_assert(token->lineno == 1, "token line number incorrect");
+  mu_assert(token->start == 11, "token start incorrect");
+  mu_assert(strcmp(token->value, " ") == 0, "token not parsed correctly");
+  mu_assert(token->type == SPACE, "token type not set correctly");
+
   crb_free_lexer();
   return 0;
 }

@@ -10,6 +10,7 @@ char peek(char* code);
 void pushback();
 void print_token(Token* token);
 void consume_whitespace(char* code);
+bool is_keyword(Token* token);
 
 void crb_init_lexer() {
   lexer = (Lexer*)malloc(sizeof(Lexer));
@@ -64,15 +65,32 @@ void crb_lexer_lex(char* code) {
         add_token(token);
       }
     } else {
-      lexer->curr_type = IDENTIFIER;
-      lexer->in_token = true;
-      if (isspace(curr_char)) {
-        Token* token = new_token(code);
-        add_token(token);
-        consume_whitespace(code);
-      } else {
-        lexer->curr_end_pos++;
+      if (lexer->in_token == false) {
+        lexer->curr_type = IDENTIFIER;
+        lexer->in_token = true;
       }
+      if (isspace(curr_char)) {
+        if (lexer->in_token == true) {
+          Token* token = new_token(code);
+          if (is_keyword(token)) {
+            token->type = KEYWORD;
+          }
+          add_token(token);
+        }
+        lexer->curr_type = SPACE;
+        lexer->in_token = true;
+        if (curr_char == '\n') {
+          lexer->curr_lineno++;
+        }
+      } else {
+        if (lexer->curr_type == SPACE) {
+          Token* token = new_token(code);
+          add_token(token);
+          lexer->curr_type = NONE;
+          lexer->in_token = false;
+        }
+      }
+      lexer->curr_end_pos++;
     }
   }
 }
@@ -105,11 +123,12 @@ Token* new_token(char* code) {
 }
 
 static const char *TypeString[] = {
-  "None", "Integer", "Float", "Period", "Identifier"
+  "None", "Integer", "Float", "Period", "Identifier", "Space", "Keyword"
 };
 void print_token(Token* token) {
   printf("***** token (%s) ****\n", TypeString[token->type]);
-  printf("Start Pos: (%d)\n", token->start);
+  printf("Start Pos: %d\n", token->start);
+  printf("Value: %s\n", token->value);
 }
 
 char peek(char* code) {
@@ -121,14 +140,9 @@ void pushback() {
   lexer->curr_pos--;
 }
 
-void consume_whitespace(char* code) {
-  char c = code[lexer->curr_pos];
-  while (isspace(c)) {
-    if (c == '\n') {
-      lexer->curr_lineno++;
-    }
-    lexer->curr_pos++;
-    c = code[lexer->curr_pos];
+bool is_keyword(Token* token) {
+  if (strcmp(token->value, "do") == 0) {
+    return true;
   }
-  pushback();
+  return false;
 }
