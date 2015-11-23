@@ -2,12 +2,8 @@ void crb_init_lexer();
 void crb_free_lexer();
 void crb_lexer_lex(char* code);
 
-typedef struct integer {
-  char* value;
-} Integer;
-
 typedef struct token {
-  Integer* token;
+  char* value;
   int lineno;
   int start;
   struct token* next;
