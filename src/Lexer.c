@@ -11,6 +11,7 @@ void crb_init_lexer() {
   lexer = (Lexer*)malloc(sizeof(Lexer));
   lexer->head = NULL;
   lexer->tail = NULL;
+  lexer->in_token = false;
   lexer->num_tokens = 0;
   lexer->curr_lineno = 1;
   lexer->curr_start_pos = 0;
@@ -26,9 +27,14 @@ void crb_lexer_lex(char* code) {
   int len = strlen(code);
   for (int i = 0; i < len; i++) {
     if (isdigit(code[i])) {
-      // start of number
+      if (lexer->in_token == false) {
+        // start of number
+        lexer->in_token = true;
+        lexer->curr_type = INTEGER;
+      }
       lexer->curr_end_pos++;
     } else {
+      lexer->in_token = false;
       Token* token = new_token(code);
       add_token(token);
       break;
@@ -55,6 +61,7 @@ Token* new_token(char* code) {
   int token_length = lexer->curr_end_pos - lexer->curr_start_pos;
   token->value = (char *)malloc(sizeof(char) * token_length+1);
   token->value[token_length] = '\0';
+  token->type = lexer->curr_type;
   strncpy(token->value, code+lexer->curr_start_pos, token_length);
   return token;
 }
