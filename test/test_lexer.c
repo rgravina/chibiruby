@@ -120,7 +120,7 @@ code = "puts \"Hello, World!\""
 [[1, 6], :on_tstring_content, "Hello, World!"],
 [[1, 19], :on_tstring_end, "\""]]
 */
-void test_lexer_string() {
+void test_lexer_string_double_quote() {
   char* code = "puts \"Hello, World!\"";
   crb_init_lexer();
   crb_lexer_lex(code);
@@ -134,7 +134,6 @@ void test_lexer_string() {
   crb_free_lexer();
 }
 
-// TODO: more cases
 /*
 code = "puts 'Hello, World!'"
 > pp Ripper.lex(code)
@@ -143,7 +142,23 @@ code = "puts 'Hello, World!'"
  [[1, 5], :on_tstring_beg, "'"],
  [[1, 6], :on_tstring_content, "Hello, World!"],
  [[1, 19], :on_tstring_end, "'"]]
+*/
+void test_lexer_string_single_quote() {
+  char* code = "puts 'Hello, World!'";
+  crb_init_lexer();
+  crb_lexer_lex(code);
+  ok(lexer->num_tokens == 5);
+  ok(lexer->in_token == false);
+  check_token(1, 0, IDENTIFIER, "puts");
+  check_token(1, 4, SPACE, " ");
+  check_token(1, 5, STRING_BEGINING, "'");
+  check_token(1, 6, STRING_CONTENT, "Hello, World!");
+  check_token(1, 19, STRING_END, "'");
+  crb_free_lexer();
+}
 
+// TODO: more cases
+/*
 code = "`cvs diff parse.y`"
 > pp Ripper.lex(code)
 [[[1, 0], :on_backtick, "`"],
@@ -236,6 +251,7 @@ int main() {
   plan(NO_PLAN);
   test_lexer_method_block();
   test_lexer_array();
-  test_lexer_string();
+  test_lexer_string_double_quote();
+  test_lexer_string_single_quote();
   done_testing();
 }
