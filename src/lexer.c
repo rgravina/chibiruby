@@ -12,6 +12,7 @@ void print_token(Token* token);
 void consume_whitespace(char* code);
 bool is_keyword(Token* token);
 bool is_operator(Token* token);
+bool valid_identifier_char(char curr_char);
 
 void crb_init_lexer() {
   lexer = (Lexer*)malloc(sizeof(Lexer));
@@ -46,17 +47,27 @@ void crb_lexer_lex(char* code) {
     //
     if (lexer->in_token == true) {
       // handle numbers which require some lookahead
-      if (lexer->curr_type == INTEGER && curr_char == '.') {
-        char next_char = peek(code);
-        if (isdigit(next_char)) {
-          // it's a float, so keep going
-          lexer->curr_type = FLOAT;
-          lexer->curr_end_pos++;
+      if (lexer->curr_type == INTEGER) {
+        if (curr_char == '.') {
+          char next_char = peek(code);
+          if (isdigit(next_char)) {
+            // it's a float, so keep going
+            lexer->curr_type = FLOAT;
+            lexer->curr_end_pos++;
+          } else {
+            // add integer, and go back before the period
+            Token* token = new_token(code);
+            add_token(token);
+            pushback();
+          }          
         } else {
-          // add integer, and go back before the period
-          Token* token = new_token(code);
-          add_token(token);
-          pushback();
+          if (!isdigit(curr_char)) {
+            Token* token = new_token(code);
+            add_token(token);
+            pushback();            
+          } else {
+            lexer->curr_end_pos++;            
+          }
         }
       } else if (lexer->curr_type == SPACE) {
         if (isspace(curr_char)) {
@@ -71,8 +82,7 @@ void crb_lexer_lex(char* code) {
           pushback();
         }
       } else if (lexer->curr_type == IDENTIFIER) {
-        // TODO: handle other operators
-        if (isspace(curr_char) || curr_char == '|') {
+        if (!valid_identifier_char(curr_char)) {
           Token* token = new_token(code);
           add_token(token);
           pushback();
@@ -97,6 +107,7 @@ void crb_lexer_lex(char* code) {
         lexer->curr_type = SPACE;
         lexer->in_token = true;
         lexer->curr_end_pos++;
+      // TODO: handle constants (first char is A-Z)
       // handle remaining checks which can only require looking at curr_char
       } else {
         Token* token;
@@ -147,6 +158,12 @@ void crb_lexer_lex(char* code) {
             break;
           // TODO: handle other operators
           case '|':
+            lexer->curr_type = OPERATOR;
+            lexer->curr_end_pos++;
+            token = new_token(code);
+            add_token(token);
+            break;
+          case '=':
             lexer->curr_type = OPERATOR;
             lexer->curr_end_pos++;
             token = new_token(code);
@@ -214,6 +231,11 @@ char peek(char* code) {
 void pushback() {
   lexer->in_token = false;
   lexer->curr_pos--;
+}
+
+bool valid_identifier_char(char curr_char) {
+  //FIXME: use proper Ruby leixcal rules for identifiers
+  return isalpha(curr_char);
 }
 
 /*

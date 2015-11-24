@@ -184,8 +184,38 @@ static char *test_lexer_array() {
   token = token->next;
   mu_assert(token->lineno == 1, "token line number incorrect");
   mu_assert(token->start == 6, "token start incorrect");
-  // mu_assert(token->type == OPERATOR, "token type not set correctly");
-  // mu_assert(strcmp(token->value, "=") == 0, "token not parsed correctly");
+  mu_assert(token->type == OPERATOR, "token type not set correctly");
+  mu_assert(strcmp(token->value, "=") == 0, "token not parsed correctly");
+
+  token = token->next;
+  mu_assert(token->lineno == 1, "token line number incorrect");
+  mu_assert(token->start == 7, "token start incorrect");
+  mu_assert(token->type == SPACE, "token type not set correctly");
+  mu_assert(strcmp(token->value, " ") == 0, "token not parsed correctly");
+
+  token = token->next;
+  mu_assert(token->lineno == 1, "token line number incorrect");
+  mu_assert(token->start == 8, "token start incorrect");
+  mu_assert(token->type == LBRACKET, "token type not set correctly");
+  mu_assert(strcmp(token->value, "[") == 0, "token not parsed correctly");
+
+  token = token->next;
+  mu_assert(token->lineno == 1, "token line number incorrect");
+  mu_assert(token->start == 9, "token start incorrect");
+  mu_assert(token->type == INTEGER, "token type not set correctly");
+  mu_assert(strcmp(token->value, "1") == 0, "token not parsed correctly");
+
+  token = token->next;
+  mu_assert(token->lineno == 1, "token line number incorrect");
+  mu_assert(token->start == 10, "token start incorrect");
+  mu_assert(token->type == COMMA, "token type not set correctly");
+  mu_assert(strcmp(token->value, ",") == 0, "token not parsed correctly");
+
+  token = token->next;
+  mu_assert(token->lineno == 1, "token line number incorrect");
+  mu_assert(token->start == 11, "token start incorrect");
+  mu_assert(token->type == INTEGER, "token type not set correctly");
+  mu_assert(strcmp(token->value, "2") == 0, "token not parsed correctly");
 
   crb_free_lexer();
   return 0;
