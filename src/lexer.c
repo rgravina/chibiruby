@@ -28,6 +28,16 @@ void crb_init_lexer() {
   lexer->curr_end_pos = 0;
 }
 
+static Token* curr_token;
+Token* crb_next_token() {
+  if (curr_token == NULL) {
+    curr_token = lexer->head;
+  } else {
+    curr_token = curr_token->next;
+  }
+  return curr_token;
+}
+
 void crb_free_lexer() {
   Token* token = lexer->head;
   while (token != NULL) {
@@ -36,6 +46,7 @@ void crb_free_lexer() {
     free(temp);
   }
   free(lexer);
+  curr_token = NULL;
 }
 
 void crb_lexer_lex(char* code) {

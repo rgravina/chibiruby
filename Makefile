@@ -6,6 +6,7 @@ TARGET_TEST = chibirb_test
 SRC_FILES=\
   src/lexer.c
 SRC_FILES_TEST=\
+	test/tap.c \
 	test/test_lexer.c \
 	$(SRC_FILES)
 INC_DIRS=-Isrc

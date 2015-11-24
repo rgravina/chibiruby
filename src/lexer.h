@@ -14,6 +14,8 @@ typedef struct token {
   struct token* next;
 } Token;
 
+Token* crb_next_token();
+
 typedef struct lexer {
   Token* head;
   Token* tail;
