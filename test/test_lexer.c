@@ -11,28 +11,6 @@ void check_token(int lineno, int start, Type type, char* value) {
   is(token->value, value);
 }
 
-/*
-require 'ripper'
-require 'pp'
-code = "10.times do |n|\n  puts n\nend"
-pp Ripper.lex(code)
-[[[1, 0], :on_int, "10"],
- [[1, 2], :on_period, "."],
- [[1, 3], :on_ident, "times"],
- [[1, 8], :on_sp, " "],
- [[1, 9], :on_kw, "do"],
- [[1, 11], :on_sp, " "],
- [[1, 12], :on_op, "|"],
- [[1, 13], :on_ident, "n"],
- [[1, 14], :on_op, "|"],
- [[1, 15], :on_ignored_nl, "\n"],
- [[2, 0], :on_sp, "  "],
- [[2, 2], :on_ident, "puts"],
- [[2, 6], :on_sp, " "],
- [[2, 7], :on_ident, "n"],
- [[2, 8], :on_nl, "\n"],
- [[3, 0], :on_kw, "end"]]
-*/
 void test_lexer_method_block() {
   char* code = "10.times do |n|\n  puts n\nend";
   crb_init_lexer();
@@ -58,31 +36,6 @@ void test_lexer_method_block() {
   crb_free_lexer();
 }
 
-/*
-require 'ripper'
-require 'pp'
-code = "array = [1,2,3]\n puts array[1]"
-pp Ripper.lex(code)
-[[[1, 0], :on_ident, "array"],
- [[1, 5], :on_sp, " "],
- [[1, 6], :on_op, "="],
- [[1, 7], :on_sp, " "],
- [[1, 8], :on_lbracket, "["],
- [[1, 9], :on_int, "1"],
- [[1, 10], :on_comma, ","],
- [[1, 11], :on_int, "2"],
- [[1, 12], :on_comma, ","],
- [[1, 13], :on_int, "3"],
- [[1, 14], :on_rbracket, "]"],
- [[1, 15], :on_nl, "\n"],
- [[2, 0], :on_sp, " "],
- [[2, 1], :on_ident, "puts"],
- [[2, 5], :on_sp, " "],
- [[2, 6], :on_ident, "array"],
- [[2, 11], :on_lbracket, "["],
- [[2, 12], :on_int, "1"],
- [[2, 13], :on_rbracket, "]"]]
-*/
 void test_lexer_array() {
   char* code = "array = [1,2,3]\n puts array[1]";
   crb_init_lexer();
@@ -111,15 +64,6 @@ void test_lexer_array() {
   crb_free_lexer();
 }
 
-/*
-code = "puts \"Hello, World!\""
-> pp Ripper.lex(code)
-[[[1, 0], :on_ident, "puts"],
-[[1, 4], :on_sp, " "],
-[[1, 5], :on_tstring_beg, "\""],
-[[1, 6], :on_tstring_content, "Hello, World!"],
-[[1, 19], :on_tstring_end, "\""]]
-*/
 void test_lexer_string_double_quote() {
   char* code = "puts \"Hello, World!\"";
   crb_init_lexer();
@@ -134,15 +78,6 @@ void test_lexer_string_double_quote() {
   crb_free_lexer();
 }
 
-/*
-code = "puts 'Hello, World!'"
-> pp Ripper.lex(code)
-[[[1, 0], :on_ident, "puts"],
- [[1, 4], :on_sp, " "],
- [[1, 5], :on_tstring_beg, "'"],
- [[1, 6], :on_tstring_content, "Hello, World!"],
- [[1, 19], :on_tstring_end, "'"]]
-*/
 void test_lexer_string_single_quote() {
   char* code = "puts 'Hello, World!'";
   crb_init_lexer();
