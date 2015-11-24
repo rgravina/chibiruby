@@ -269,8 +269,66 @@ static char *test_lexer_array() {
   return 0;
 }
 
+/*
+code = "puts \"Hello, World!\""
+> pp Ripper.lex(code)
+[[[1, 0], :on_ident, "puts"],
+[[1, 4], :on_sp, " "],
+[[1, 5], :on_tstring_beg, "\""],
+[[1, 6], :on_tstring_content, "Hello, World!"],
+[[1, 19], :on_tstring_end, "\""]]
+*/
+static char *test_lexer_string() {
+  char* code = "puts \"Hello, World!\"";
+  Token* token;
+
+  crb_init_lexer();
+  crb_lexer_lex(code);
+  mu_assert(lexer->num_tokens == 5, "token count incorrect");
+  mu_assert(lexer->in_token == false, "in_token flag not set to false after processing token");
+
+  token = lexer->head;
+  mu_assert(token->lineno == 1, "token line number incorrect");
+  mu_assert(token->start == 0, "token start incorrect");
+  mu_assert(token->type == IDENTIFIER, "token type not set correctly");
+  mu_assert(strcmp(token->value, "puts") == 0, "token not parsed correctly");
+
+  token = token->next;
+  mu_assert(token->lineno == 1, "token line number incorrect");
+  mu_assert(token->start == 4, "token start incorrect");
+  mu_assert(token->type == SPACE, "token type not set correctly");
+  mu_assert(strcmp(token->value, " ") == 0, "token not parsed correctly");
+
+  token = token->next;
+  mu_assert(token->lineno == 1, "token line number incorrect");
+  mu_assert(token->start == 5, "token start incorrect");
+  mu_assert(token->type == STRING_BEGINING, "token type not set correctly");
+  mu_assert(strcmp(token->value, "\"") == 0, "token not parsed correctly");
+
+  token = token->next;
+  mu_assert(token->lineno == 1, "token line number incorrect");
+  mu_assert(token->start == 6, "token start incorrect");
+  mu_assert(token->type == STRING_CONTENT, "token type not set correctly");
+  mu_assert(strcmp(token->value, "Hello, World!") == 0, "token not parsed correctly");
+  
+  token = token->next;
+  mu_assert(token->lineno == 1, "token line number incorrect");
+  mu_assert(token->start == 19, "token start incorrect");
+  mu_assert(token->type == STRING_END, "token type not set correctly");
+  mu_assert(strcmp(token->value, "\"") == 0, "token not parsed correctly");
+  return 0;
+}
+
 // TODO: more cases
 /*
+code = "puts 'Hello, World!'"
+> pp Ripper.lex(code)
+[[[1, 0], :on_ident, "puts"],
+ [[1, 4], :on_sp, " "],
+ [[1, 5], :on_tstring_beg, "'"],
+ [[1, 6], :on_tstring_content, "Hello, World!"],
+ [[1, 19], :on_tstring_end, "'"]]
+
 code = "`cvs diff parse.y`"
 > pp Ripper.lex(code)
 [[[1, 0], :on_backtick, "`"],
@@ -362,6 +420,7 @@ code = "class Greeter\n   def initialize(name = \"World\")\n     @name = name\n 
 static char *all_tests() {
   mu_run_test(test_lexer_method_block);
   mu_run_test(test_lexer_array);
+  mu_run_test(test_lexer_string);
   return 0;
 }
 
