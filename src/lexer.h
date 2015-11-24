@@ -4,7 +4,7 @@ void crb_init_lexer();
 void crb_free_lexer();
 void crb_lexer_lex(char* code);
 
-typedef enum type {NONE, INTEGER, FLOAT, PERIOD, IDENTIFIER, SPACE, KEYWORD, OPERATOR, NEWLINE} Type;
+typedef enum type {NONE, INTEGER, FLOAT, PERIOD, IDENTIFIER, SPACE, KEYWORD, OPERATOR, NEWLINE, LPAREN, RPAREN, LBRACKET, RBRACKET, COMMA} Type;
 
 typedef struct token {
   char* value;

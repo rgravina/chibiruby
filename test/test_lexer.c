@@ -5,8 +5,6 @@
 
 int tests_run = 0;
 /*
- * Result of running the above code in Ruby's Ripper.lex
- *
 require 'ripper'
 require 'pp'
 code = "10.times do |n|\n  puts n\nend"
@@ -27,9 +25,8 @@ pp Ripper.lex(code)
  [[2, 7], :on_ident, "n"],
  [[2, 8], :on_nl, "\n"],
  [[3, 0], :on_kw, "end"]]
- => [[[1, 0], :on_int, "10"], [[1, 2], :on_period, "."], [[1, 3], :on_ident, "times"], [[1, 8], :on_sp, " "], [[1, 9], :on_kw, "do"], [[1, 11], :on_sp, " "], [[1, 12], :on_op, "|"], [[1, 13], :on_ident, "n"], [[1, 14], :on_op, "|"], [[1, 15], :on_ignored_nl, "\n"], [[2, 0], :on_sp, "  "], [[2, 2], :on_ident, "puts"], [[2, 6], :on_sp, " "], [[2, 7], :on_ident, "n"], [[2, 8], :on_nl, "\n"], [[3, 0], :on_kw, "end"]]
 */
-static char *test_lexer() {
+static char *test_lexer_method_block() {
   char* code = "10.times do |n|\n  puts n\nend";
   Token* token;
 
@@ -138,8 +135,65 @@ static char *test_lexer() {
   return 0;
 }
 
+/*
+require 'ripper'
+require 'pp'
+code = "array = [1,2,3]\n puts array[1]"
+pp Ripper.lex(code)
+[[[1, 0], :on_ident, "array"],
+ [[1, 5], :on_sp, " "],
+ [[1, 6], :on_op, "="],
+ [[1, 7], :on_sp, " "],
+ [[1, 8], :on_lbracket, "["],
+ [[1, 9], :on_int, "1"],
+ [[1, 10], :on_comma, ","],
+ [[1, 11], :on_int, "2"],
+ [[1, 12], :on_comma, ","],
+ [[1, 13], :on_int, "3"],
+ [[1, 14], :on_rbracket, "]"],
+ [[1, 15], :on_nl, "\n"],
+ [[2, 0], :on_sp, " "],
+ [[2, 1], :on_ident, "puts"],
+ [[2, 5], :on_sp, " "],
+ [[2, 6], :on_ident, "array"],
+ [[2, 11], :on_lbracket, "["],
+ [[2, 12], :on_int, "1"],
+ [[2, 13], :on_rbracket, "]"]]
+*/
+static char *test_lexer_array() {
+  char* code = "array = [1,2,3]\n puts array[1]";
+  Token* token;
+
+  crb_init_lexer();
+  crb_lexer_lex(code);
+//  mu_assert(lexer->num_tokens == 19, "token count incorrect");
+  mu_assert(lexer->in_token == false, "in_token flag not set to false after processing token");
+
+  token = lexer->head;
+  mu_assert(token->lineno == 1, "token line number incorrect");
+  mu_assert(token->start == 0, "token start incorrect");
+  mu_assert(token->type == IDENTIFIER, "token type not set correctly");
+  mu_assert(strcmp(token->value, "array") == 0, "token not parsed correctly");
+
+  token = token->next;
+  mu_assert(token->lineno == 1, "token line number incorrect");
+  mu_assert(token->start == 5, "token start incorrect");
+  mu_assert(token->type == SPACE, "token type not set correctly");
+  mu_assert(strcmp(token->value, " ") == 0, "token not parsed correctly");
+
+  token = token->next;
+  mu_assert(token->lineno == 1, "token line number incorrect");
+  mu_assert(token->start == 6, "token start incorrect");
+  // mu_assert(token->type == OPERATOR, "token type not set correctly");
+  // mu_assert(strcmp(token->value, "=") == 0, "token not parsed correctly");
+
+  crb_free_lexer();
+  return 0;
+}
+
 static char *all_tests() {
-  mu_run_test(test_lexer);
+  mu_run_test(test_lexer_method_block);
+  mu_run_test(test_lexer_array);
   return 0;
 }
 
