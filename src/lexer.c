@@ -185,7 +185,7 @@ void crb_lexer_lex(char* code) {
 }
 
 void add_token(Token* token) {
-//  print_token(token);
+  //print_token(token);
   lexer->in_token = false;
   lexer->curr_type = NONE;
   lexer->curr_start_pos = lexer->curr_end_pos;
@@ -219,9 +219,7 @@ static const char *TypeString[] = {
   "Left Paren", "Right Paren", "Left Bracket", "Right Bracket", "Comma"
 };
 void print_token(Token* token) {
-  printf("***** token (%s) ****\n", TypeString[token->type]);
-  printf("Start Pos: %d\n", token->start);
-  printf("Value: %s\n", token->value);
+  printf("-- token %s '%s' at (%d, %d)\n", TypeString[token->type], token->value, token->lineno, token->start);
 }
 
 char peek(char* code) {
