@@ -149,7 +149,9 @@ void process_inside_token() {
         lexer->curr_end_pos++;
       } else {
         add_token_here(SYMBOL_BEGINING);
+        lexer->curr_end_pos++;
       }
+      break;
     default:
       // just keep going with this token then
       lexer->curr_end_pos++;
