@@ -145,7 +145,7 @@ void process_inside_token() {
       break;
     case SYMBOL_BEGINING:
       if (lexer->curr_char == ':') {
-        lexer->curr_type = OPERATOR;
+        lexer->curr_type = COLON2;
         lexer->curr_end_pos++;
       } else {
         add_token_here(SYMBOL_BEGINING);
@@ -224,19 +224,23 @@ void start_next_token() {
       break;
     // TODO: handle other operators
     case '|':
-      add_token_here(OPERATOR);
+      add_token_here(BAR);
       break;
     case '=':
-      add_token_here(OPERATOR);
+      add_token_here(EQUAL);
       break;
     case '!':
       next_char = peek();
-      if (next_char == '=' || next_char == '~') {
+      if (next_char == '=') {
         lexer->curr_end_pos++;
         lexer->curr_pos++;
-        add_token_here(OPERATOR);
+        add_token_here(NOT_EQUAL);
+      } else if (next_char == '~') {
+        lexer->curr_end_pos++;
+        lexer->curr_pos++;
+        add_token_here(NOT_MATCH);
       } else {
-        add_token_here(OPERATOR);
+        add_token_here(NOT);
       }
       break;
     default:
@@ -278,9 +282,10 @@ Token* new_token() {
 }
 
 static const char *TypeString[] = {
-  "None", "Integer", "Float", "Period", "Identifier", "Space", "Keyword", "Operator", "Newline",
+  "None", "Integer", "Float", "Period", "Identifier", "Space", "Keyword", "Newline",
   "Left Paren", "Right Paren", "Left Bracket", "Right Bracket", "Comma", "String Start", "String Content",
-  "String End", "Left Brace", "Right Brace", "Symbol Beginning"
+  "String End", "Left Brace", "Right Brace", "Symbol Beginning", "Colon 2",
+  "BAR", "NOT", "EQUAL", "NOT_EQUAL", "NOT_MATCH"
 };
 void print_token(Token* token) {
   printf("-- token %s '%s' at (%d, %d)\n", TypeString[token->type], token->value, token->lineno, token->start);

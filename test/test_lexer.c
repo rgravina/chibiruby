@@ -23,9 +23,9 @@ void test_lexer_method_block() {
   check_token(1, 8, SPACE, " ");
   check_token(1, 9, KEYWORD, "do");
   check_token(1, 11, SPACE, " ");
-  check_token(1, 12, OPERATOR, "|");
+  check_token(1, 12, BAR, "|");
   check_token(1, 13, IDENTIFIER, "n");
-  check_token(1, 14, OPERATOR, "|");
+  check_token(1, 14, BAR, "|");
   check_token(1, 15, NEWLINE, "\n");
   check_token(2, 0, SPACE, "  ");
   check_token(2, 2, IDENTIFIER, "puts");
@@ -44,7 +44,7 @@ void test_lexer_array() {
   ok(lexer->in_token == false);
   check_token(1, 0, IDENTIFIER, "array");
   check_token(1, 5, SPACE, " ");
-  check_token(1, 6, OPERATOR, "=");
+  check_token(1, 6, EQUAL, "=");
   check_token(1, 7, SPACE, " ");
   check_token(1, 8, LBRACKET, "[");
   check_token(1, 9, INTEGER, "1");
@@ -130,21 +130,21 @@ void test_lexer_exclamation() {
   crb_init_lexer(code);
   crb_lexer_lex();
   ok(lexer->num_tokens == 1);
-  check_token(1, 0, OPERATOR, "!");
+  check_token(1, 0, NOT, "!");
   crb_free_lexer();
 
   code = "!=";
   crb_init_lexer(code);
   crb_lexer_lex();
   ok(lexer->num_tokens == 1);
-  check_token(1, 0, OPERATOR, "!=");
+  check_token(1, 0, NOT_EQUAL, "!=");
   crb_free_lexer();
 
   code = "!~";
   crb_init_lexer(code);
   crb_lexer_lex();
   ok(lexer->num_tokens == 1);
-  check_token(1, 0, OPERATOR, "!~");
+  check_token(1, 0, NOT_MATCH, "!~");
   crb_free_lexer();
 }
 
