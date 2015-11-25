@@ -148,6 +148,31 @@ void test_lexer_exclamation() {
   crb_free_lexer();
 }
 
+void test_lexer_greater_than() {
+  char* code = "1>2\n1>>2\n1>>=2\n1>=2\n";
+  crb_init_lexer(code);
+  crb_lexer_lex();
+  ok(lexer->num_tokens == 16);
+  ok(lexer->in_token == false);
+  check_token(1, 0, INTEGER, "1");
+  check_token(1, 1, GREATER_THAN, ">");
+  check_token(1, 2, INTEGER, "2");
+  check_token(1, 3, NEWLINE, "\n");
+  check_token(2, 0, INTEGER, "1");
+  check_token(2, 1, RIGHT_SHIFT, ">>");
+  check_token(2, 3, INTEGER, "2");
+  check_token(2, 4, NEWLINE, "\n");
+  check_token(3, 0, INTEGER, "1");
+  check_token(3, 1, OP_ASSIGN, ">>=");
+  check_token(3, 4, INTEGER, "2");
+  check_token(3, 5, NEWLINE, "\n");
+  check_token(4, 0, INTEGER, "1");
+  check_token(4, 1, GREATER_THAN_OR_EQUAL, ">=");
+  check_token(4, 3, INTEGER, "2");
+  check_token(4, 4, NEWLINE, "\n");
+  crb_free_lexer();
+}
+
 // TODO: more cases
 /*
 code = "`cvs diff parse.y`"
@@ -248,5 +273,6 @@ int main() {
   test_lexer_brace();
   test_lexer_eof();
   test_lexer_exclamation();
+  test_lexer_greater_than();
   done_testing();
 }

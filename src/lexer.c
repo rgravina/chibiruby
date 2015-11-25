@@ -143,6 +143,15 @@ void process_inside_token() {
         lexer->curr_end_pos++;
       }
       break;
+    case RIGHT_SHIFT:
+      if (lexer->curr_char == '=') {
+        lexer->curr_end_pos++;
+        add_token_here(OP_ASSIGN);
+      } else {
+        add_token_here(RIGHT_SHIFT);
+        pushback();
+      }
+      break;
     case SYMBOL_BEGINING:
       if (lexer->curr_char == ':') {
         lexer->curr_type = COLON2;
@@ -245,6 +254,20 @@ void start_next_token() {
         add_token_here(NOT);
       }
       break;
+    case '>':
+      next_char = peek();
+      if (next_char == '=') {
+        lexer->curr_end_pos++;
+        lexer->curr_pos++;
+        add_token_here(GREATER_THAN_OR_EQUAL);
+      } else if (next_char == '>') {
+        lexer->curr_end_pos++;
+        lexer->curr_pos++;
+        start_new_token(RIGHT_SHIFT);
+      } else {
+        add_token_here(GREATER_THAN);
+      }
+      break;
     default:
       start_new_token(IDENTIFIER);
       lexer->curr_end_pos++;
@@ -287,7 +310,8 @@ static const char *TypeString[] = {
   "None", "Integer", "Float", "Period", "Identifier", "Space", "Keyword", "Newline",
   "Left Paren", "Right Paren", "Left Bracket", "Right Bracket", "Comma", "String Start", "String Content",
   "String End", "Left Brace", "Right Brace", "Symbol Beginning", "Colon 2",
-  "BAR", "NOT", "EQUAL", "NOT_EQUAL", "NOT_MATCH"
+  "BAR", "NOT", "EQUAL", "NOT_EQUAL", "NOT_MATCH", "RIGHT_SHIFT", "OP_ASSIGN",
+  "GREATER_THAN", "GREATER_THAN_OR_EQUAL"
 };
 void print_token(Token* token) {
   printf("-- token %s '%s' at (%d, %d)\n", TypeString[token->type], token->value, token->lineno, token->start);
@@ -299,6 +323,7 @@ char peek() {
 
 void pushback() {
   lexer->in_token = false;
+  lexer->curr_type = NONE;
   lexer->curr_pos--;
 }
 
