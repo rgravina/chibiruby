@@ -4,22 +4,26 @@
 #include <ctype.h>
 #include "lexer.h"
 
-Token* new_token(char* code);
+Token* new_token();
 void add_token(Token* token);
-char peek(char* code);
+char peek();
 void pushback();
 void print_token(Token* token);
-void consume_whitespace(char* code);
 bool is_keyword(Token* token);
 bool is_operator(Token* token);
-bool valid_identifier_char(char curr_char);
+bool valid_identifier_char();
+void process_inside_token();
+void start_next_token();
+void add_token_here(Type type);
+void start_new_token(Type type);
 
-void crb_init_lexer() {
+void crb_init_lexer(char* code) {
   lexer = (Lexer*)malloc(sizeof(Lexer));
   lexer->print_tokens = false;
   lexer->head = NULL;
   lexer->tail = NULL;
   lexer->in_token = false;
+  lexer->code = code;
   lexer->num_tokens = 0;
   lexer->curr_lineno = 1;
   lexer->curr_pos = 0;
@@ -49,177 +53,152 @@ void crb_free_lexer() {
   curr_token = NULL;
 }
 
-void crb_lexer_lex(char* code) {
-  int len = strlen(code);
+void crb_lexer_lex() {
+  int len = strlen(lexer->code);
   for (lexer->curr_pos = 0; lexer->curr_pos < len; lexer->curr_pos++) {
-    char curr_char = code[lexer->curr_pos];
-
-    //
-    // Handle detecting the end of token (or continuing it)
-    //
+    lexer->curr_char = lexer->code[lexer->curr_pos];
     if (lexer->in_token == true) {
-      // handle numbers which require some lookahead
-      switch(lexer->curr_type) {
-        case INTEGER:
-          if (curr_char == '.') {
-            char next_char = peek(code);
-            if (isdigit(next_char)) {
-              // it's a float, so keep going
-              lexer->curr_type = FLOAT;
-              lexer->curr_end_pos++;
-            } else {
-              // add integer, and go back before the period
-              Token* token = new_token(code);
-              add_token(token);
-              pushback();
-            }
-          } else {
-            if (!isdigit(curr_char)) {
-              Token* token = new_token(code);
-              add_token(token);
-              pushback();
-            } else {
-              lexer->curr_end_pos++;
-            }
-          }
-          break;
-        case SPACE:
-          if (isspace(curr_char)) {
-            if (curr_char == '\n') {
-              lexer->newline_last_seen_pos = lexer->curr_pos+1;
-              lexer->curr_lineno++;
-            }
-            lexer->curr_end_pos++;
-          } else {
-            Token* token = new_token(code);
-            add_token(token);
-            pushback();
-          }
-          break;
-        case IDENTIFIER:
-          if (!valid_identifier_char(curr_char)) {
-            Token* token = new_token(code);
-            add_token(token);
-            pushback();
-          } else {
-            lexer->curr_end_pos++;
-          }
-          break;
-        case STRING_CONTENT:
-          if ((curr_char == '\"' && strcmp(lexer->tail->value, "\"") == 0) ||
-              (curr_char == '\'' && strcmp(lexer->tail->value, "\'") == 0)) {
-            Token* token = new_token(code);
-            add_token(token);
-            lexer->curr_type = STRING_END;
-            lexer->curr_end_pos++;
-            token = new_token(code);
-            add_token(token);
-          } else {
-            lexer->curr_end_pos++;
-          }
-          break;
-        default:
-          // just keep going with this token then
-          lexer->curr_end_pos++;
-      } // switch
-    } // if
-    //
-    // Handle the start of a new token
-    //
-    else {
-      // handle checks which can't be done in switch
-      if (isdigit(curr_char)) {
-        lexer->curr_type = INTEGER;
-        lexer->in_token = true;
-        lexer->curr_end_pos++;
-      } else if (curr_char != '\n' && isspace(curr_char)) {
-        lexer->curr_type = SPACE;
-        lexer->in_token = true;
-        lexer->curr_end_pos++;
-      // TODO: handle constants (first char is A-Z)
-      // handle remaining checks which can only require looking at curr_char
-      } else {
-        Token* token;
-        switch(curr_char) {
-          case '.':
-            lexer->curr_type = PERIOD;
-            lexer->curr_end_pos++;
-            token = new_token(code);
-            add_token(token);
-            break;
-          case '\n':
-            lexer->curr_type = NEWLINE;
-            lexer->curr_end_pos++;
-            token = new_token(code);
-            add_token(token);
-            lexer->newline_last_seen_pos = lexer->curr_pos+1;
-            lexer->curr_lineno++;
-            break;
-          case '(':
-            lexer->curr_type = LPAREN;
-            lexer->curr_end_pos++;
-            token = new_token(code);
-            add_token(token);
-            break;
-          case ')':
-            lexer->curr_type = RPAREN;
-            lexer->curr_end_pos++;
-            token = new_token(code);
-            add_token(token);
-            break;
-          case '[':
-            lexer->curr_type = LBRACKET;
-            lexer->curr_end_pos++;
-            token = new_token(code);
-            add_token(token);
-            break;
-          case ']':
-            lexer->curr_type = RBRACKET;
-            lexer->curr_end_pos++;
-            token = new_token(code);
-            add_token(token);
-            break;
-          case ',':
-            lexer->curr_type = COMMA;
-            lexer->curr_end_pos++;
-            token = new_token(code);
-            add_token(token);
-            break;
-          case '\'':
-          case '\"':
-            lexer->curr_type = STRING_BEGINING;
-            lexer->curr_end_pos++;
-            token = new_token(code);
-            add_token(token);
-            lexer->curr_type = STRING_CONTENT;
-            lexer->in_token = true;
-            break;
-          // TODO: handle other operators
-          case '|':
-            lexer->curr_type = OPERATOR;
-            lexer->curr_end_pos++;
-            token = new_token(code);
-            add_token(token);
-            break;
-          case '=':
-            lexer->curr_type = OPERATOR;
-            lexer->curr_end_pos++;
-            token = new_token(code);
-            add_token(token);
-            break;
-          default:
-            lexer->curr_type = IDENTIFIER;
-            lexer->in_token = true;
-            lexer->curr_end_pos++;
-        } // switch
-      } // if
-    } // if
-  } // for
+      process_inside_token();
+    } else {
+      start_next_token();
+    }
+  }
   // add the final token if there is one
   if (lexer->in_token == true) {
-    Token* token = new_token(code);
-    add_token(token);
+    add_token(new_token());
   }
+}
+
+void process_inside_token() {
+  // handle numbers which require some lookahead
+  switch(lexer->curr_type) {
+    case INTEGER:
+      if (lexer->curr_char == '.') {
+        char next_char = peek();
+        if (isdigit(next_char)) {
+          // it's a float, so keep going
+          lexer->curr_type = FLOAT;
+          lexer->curr_end_pos++;
+        } else {
+          // add integer, and go back before the period
+          Token* token = new_token();
+          add_token(token);
+          pushback();
+        }
+      } else {
+        if (!isdigit(lexer->curr_char)) {
+          Token* token = new_token();
+          add_token(token);
+          pushback();
+        } else {
+          lexer->curr_end_pos++;
+        }
+      }
+      break;
+    case SPACE:
+      if (isspace(lexer->curr_char)) {
+        if (lexer->curr_char == '\n') {
+          lexer->newline_last_seen_pos = lexer->curr_pos+1;
+          lexer->curr_lineno++;
+        }
+        lexer->curr_end_pos++;
+      } else {
+        Token* token = new_token();
+        add_token(token);
+        pushback();
+      }
+      break;
+    case IDENTIFIER:
+      if (!valid_identifier_char(lexer->curr_char)) {
+        Token* token = new_token();
+        add_token(token);
+        pushback();
+      } else {
+        lexer->curr_end_pos++;
+      }
+      break;
+    case STRING_CONTENT:
+      if ((lexer->curr_char == '\"' && strcmp(lexer->tail->value, "\"") == 0) ||
+          (lexer->curr_char == '\'' && strcmp(lexer->tail->value, "\'") == 0)) {
+        Token* token = new_token();
+        add_token(token);
+        add_token_here(STRING_END);
+      } else {
+        lexer->curr_end_pos++;
+      }
+      break;
+    default:
+      // just keep going with this token then
+      lexer->curr_end_pos++;
+  } // switch
+}
+
+void add_token_here(Type type) {
+  lexer->curr_type = type;
+  lexer->curr_end_pos++;
+  add_token(new_token(lexer->code));
+}
+
+void start_new_token(Type type) {
+  lexer->curr_type = type;
+  lexer->in_token = true;
+}
+
+void start_next_token() {
+  /*
+   * token :: keyword | identifier | punctuator | operator | literal
+   */
+  // handle checks which can't be done in switch
+  if (isdigit(lexer->curr_char)) {
+    start_new_token(INTEGER);
+    lexer->curr_end_pos++;
+  } else if (lexer->curr_char != '\n' && isspace(lexer->curr_char)) {
+    start_new_token(SPACE);
+    lexer->curr_end_pos++;
+  // TODO: handle constants (first char is A-Z)
+  // handle remaining checks which can only require looking at lexer->curr_char
+  } else {
+    switch(lexer->curr_char) {
+      case '.':
+        add_token_here(PERIOD);
+        break;
+      case '\n':
+        add_token_here(NEWLINE);
+        lexer->newline_last_seen_pos = lexer->curr_pos+1;
+        lexer->curr_lineno++;
+        break;
+      case '(':
+        add_token_here(LPAREN);
+        break;
+      case ')':
+        add_token_here(RPAREN);
+        break;
+      case '[':
+        add_token_here(LBRACKET);
+        break;
+      case ']':
+        add_token_here(RBRACKET);
+        break;
+      case ',':
+        add_token_here(COMMA);
+        break;
+      case '\'':
+      case '\"':
+        add_token_here(STRING_BEGINING);
+        start_new_token(STRING_CONTENT);
+        break;
+      // TODO: handle other operators
+      case '|':
+        add_token_here(OPERATOR);
+        break;
+      case '=':
+        add_token_here(OPERATOR);
+        break;
+      default:
+        start_new_token(IDENTIFIER);
+        lexer->curr_end_pos++;
+    } // switch
+  } // if  
 }
 
 void add_token(Token* token) {
@@ -238,7 +217,7 @@ void add_token(Token* token) {
   lexer->num_tokens++;
 }
 
-Token* new_token(char* code) {
+Token* new_token() {
   Token* token = (Token*)malloc(sizeof(Token));
   token->start = (lexer->curr_start_pos - lexer->newline_last_seen_pos);
   token->lineno = lexer->curr_lineno;
@@ -246,7 +225,7 @@ Token* new_token(char* code) {
   int token_length = lexer->curr_end_pos - lexer->curr_start_pos;
   token->value = (char *)malloc(sizeof(char) * token_length+1);
   token->value[token_length] = 0;
-  strncpy(token->value, code+lexer->curr_start_pos, token_length);
+  strncpy(token->value, lexer->code+lexer->curr_start_pos, token_length);
   token->type = lexer->curr_type;
   if (token->type == IDENTIFIER && is_keyword(token)) {
     token->type = KEYWORD;
@@ -263,8 +242,8 @@ void print_token(Token* token) {
   printf("-- token %s '%s' at (%d, %d)\n", TypeString[token->type], token->value, token->lineno, token->start);
 }
 
-char peek(char* code) {
-  return code[lexer->curr_pos+1];
+char peek() {
+  return lexer->code[lexer->curr_pos+1];
 }
 
 void pushback() {
@@ -272,9 +251,9 @@ void pushback() {
   lexer->curr_pos--;
 }
 
-bool valid_identifier_char(char curr_char) {
+bool valid_identifier_char() {
   //FIXME: use proper Ruby leixcal rules for identifiers
-  return isalpha(curr_char);
+  return isalpha(lexer->curr_char);
 }
 
 /*

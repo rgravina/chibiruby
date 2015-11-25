@@ -1,8 +1,8 @@
 #include <stdbool.h>
 
-void crb_init_lexer();
+void crb_init_lexer(char* code);
 void crb_free_lexer();
-void crb_lexer_lex(char* code);
+void crb_lexer_lex();
 
 typedef enum type {NONE, INTEGER, FLOAT, PERIOD, IDENTIFIER, SPACE, KEYWORD, OPERATOR, NEWLINE, LPAREN, RPAREN, LBRACKET, RBRACKET, COMMA, STRING_BEGINING, STRING_CONTENT, STRING_END} Type;
 
@@ -23,6 +23,8 @@ typedef struct lexer {
   int num_tokens;
   bool in_token;
   Type curr_type;
+  char* code;
+  char curr_char;
   int curr_lineno;
   int curr_pos;
   int newline_last_seen_pos;

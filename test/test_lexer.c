@@ -13,8 +13,8 @@ void check_token(int lineno, int start, Type type, char* value) {
 
 void test_lexer_method_block() {
   char* code = "10.times do |n|\n  puts n\nend";
-  crb_init_lexer();
-  crb_lexer_lex(code);
+  crb_init_lexer(code);
+  crb_lexer_lex();
   ok(lexer->num_tokens == 16);
   ok(lexer->in_token == false);
   check_token(1, 0, INTEGER, "10");
@@ -38,8 +38,8 @@ void test_lexer_method_block() {
 
 void test_lexer_array() {
   char* code = "array = [1,2,3]\n puts array[1]";
-  crb_init_lexer();
-  crb_lexer_lex(code);
+  crb_init_lexer(code);
+  crb_lexer_lex();
   ok(lexer->num_tokens == 19);
   ok(lexer->in_token == false);
   check_token(1, 0, IDENTIFIER, "array");
@@ -66,8 +66,8 @@ void test_lexer_array() {
 
 void test_lexer_string_double_quote() {
   char* code = "puts \"Hello, World!\"";
-  crb_init_lexer();
-  crb_lexer_lex(code);
+  crb_init_lexer(code);
+  crb_lexer_lex();
   ok(lexer->num_tokens == 5);
   ok(lexer->in_token == false);
   check_token(1, 0, IDENTIFIER, "puts");
@@ -80,8 +80,8 @@ void test_lexer_string_double_quote() {
 
 void test_lexer_string_single_quote() {
   char* code = "puts 'Hello, World!'";
-  crb_init_lexer();
-  crb_lexer_lex(code);
+  crb_init_lexer(code);
+  crb_lexer_lex();
   ok(lexer->num_tokens == 5);
   ok(lexer->in_token == false);
   check_token(1, 0, IDENTIFIER, "puts");

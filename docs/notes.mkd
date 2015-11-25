@@ -1,5 +1,17 @@
-* Why does ruby have 'ignored newlines'? (`on_ignored_nl`) v.s. 'newlines' (`on_nl`)?
-* Why is whitespace given a token (`on_sp`) containing all of the whitespace as its value?
-* Need hash table for keywords, and Ruby uses `gperf` and a `keywords` file to do it.
-* Can read the Ruby draft specification [here](http://www.ipa.go.jp/osc/english/ruby/)
-* For testing, started with MinUnit then moved to libtap.
+This file contains notes made while making chibiruby, including questions (maybe later answered), notes about where to look for docs on Ruby, difficulties faced etc. etc.
+
+C
+=
+* I stared off with [Huw Collingbourne's course on Udemy](http://www.udemy.com/c-programming-for-beginners/), which was a great refresher on C.
+* Got a couple of O'Reilly books also at the time, but wanted a more tutorial format so haven't used them yet.
+* For testing, I started with MinUnit which was nice for writing simple tests and getting started. After I while I rewrote the tests using [libtap](http://github.com/zorgnax/libtap) which meant I could refactor tests into functions, and get some convenience functions also.
+* I should really use a hash table for looking up keywords. Ruby uses `gperf` and a `keywords` file which generates a very fast lookup table for that specific list of keys.
+
+Ruby
+=
+* It's really hard to know where to start, so I started with trying to tokenise to match the `Ripper.lex` output.
+* Reading through the RHG showed how MRI does it, but I was getting lost in the details, I wanted to first just see the grammar rules.
+* I later found the Ruby draft specification [here](http://www.ipa.go.jp/osc/english/ruby/)
+  * Lexer - Start with 8.7 Tokens
+* Why does ruby `Ripper.lex` output contain 'ignored newlines'? (`on_ignored_nl`) v.s. 'newlines' (`on_nl`)?
+* In `Ripper.lex` output, why is whitespace and comments given tokens containing all of the content?
