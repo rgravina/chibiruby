@@ -92,6 +92,62 @@ void test_lexer_string_single_quote() {
   crb_free_lexer();
 }
 
+void test_lexer_symbol() {
+  char* code = ":hello";
+  crb_init_lexer(code);
+  crb_lexer_lex();
+  ok(lexer->num_tokens == 2);
+  ok(lexer->in_token == false);
+  check_token(1, 0, SYMBOL_BEGINING, ":");
+  check_token(1, 1, IDENTIFIER, "hello");
+  crb_free_lexer();
+}
+
+void test_lexer_brace() {
+  char* code = "{1}";
+  crb_init_lexer(code);
+  crb_lexer_lex();
+  ok(lexer->num_tokens == 3);
+  ok(lexer->in_token == false);
+  check_token(1, 0, LBRACE, "{");
+  check_token(1, 1, INTEGER, "1");
+  check_token(1, 2, RBRACE, "}");
+  crb_free_lexer();
+}
+
+void test_lexer_eof() {
+  char* code = "1\0 2";
+  crb_init_lexer(code);
+  crb_lexer_lex();
+  ok(lexer->num_tokens == 1);
+  ok(lexer->in_token == false);
+  check_token(1, 0, INTEGER, "1");
+  crb_free_lexer();
+}
+
+void test_lexer_exclamation() {
+  char* code = "!";
+  crb_init_lexer(code);
+  crb_lexer_lex();
+  ok(lexer->num_tokens == 1);
+  check_token(1, 0, OPERATOR, "!");
+  crb_free_lexer();
+
+  code = "!=";
+  crb_init_lexer(code);
+  crb_lexer_lex();
+  ok(lexer->num_tokens == 1);
+  check_token(1, 0, OPERATOR, "!=");
+  crb_free_lexer();
+
+  code = "!~";
+  crb_init_lexer(code);
+  crb_lexer_lex();
+  ok(lexer->num_tokens == 1);
+  check_token(1, 0, OPERATOR, "!~");
+  crb_free_lexer();
+}
+
 // TODO: more cases
 /*
 code = "`cvs diff parse.y`"
@@ -188,5 +244,9 @@ int main() {
   test_lexer_array();
   test_lexer_string_double_quote();
   test_lexer_string_single_quote();
+  test_lexer_symbol();
+  test_lexer_brace();
+  test_lexer_eof();
+  test_lexer_exclamation();
   done_testing();
 }

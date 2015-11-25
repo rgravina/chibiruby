@@ -10,8 +10,10 @@ C
 Ruby
 =
 * It's really hard to know where to start, so I started with trying to tokenise to match the `Ripper.lex` output.
+  * After a while, I saw that just using OPERATOR for the type was making it harder to perform a lookahead, so changed to storing the token type (greater than, less than etc.)
 * Reading through the RHG showed how MRI does it, but I was getting lost in the details, I wanted to first just see the grammar rules.
 * I later found the Ruby draft specification [here](http://www.ipa.go.jp/osc/english/ruby/)
   * Lexer - Start with 8.7 Tokens
+* Then, I went back to look at `parse_yylex()`.
 * Why does ruby `Ripper.lex` output contain 'ignored newlines'? (`on_ignored_nl`) v.s. 'newlines' (`on_nl`)?
 * In `Ripper.lex` output, why is whitespace and comments given tokens containing all of the content?
