@@ -27,6 +27,7 @@ void crb_init_lexer(char* code) {
   lexer->print_tokens = false;
   lexer->head = NULL;
   lexer->tail = NULL;
+  lexer->state = EXPR_BEG;
   lexer->in_token = false;
   lexer->code = code;
   lexer->num_tokens = 0;
@@ -176,6 +177,16 @@ void process_short_token() {
       advance_token();
       break;
     case '\n':
+      switch (lexer->state) {
+        case EXPR_BEG:
+        case EXPR_FNAME:
+        case EXPR_DOT:
+        case EXPR_CLASS:
+          lexer->state = EXPR_BEG;
+          //TODO: Ignore the newline (add an ignored newline token)
+          break;
+      }
+      lexer->state = EXPR_BEG;
       add_token_here(NEWLINE);
       lexer->newline_last_seen_pos = lexer->curr_pos+1;
       lexer->curr_lineno++;

@@ -4,6 +4,8 @@ typedef enum type {NONE, INTEGER, FLOAT, PERIOD, IDENTIFIER, SPACE, KEYWORD, NEW
 LBRACE, RBRACE, SYMBOL_BEGINING, COLON2, BAR, NOT, EQUAL, NOT_EQUAL, NOT_MATCH, RIGHT_SHIFT, OP_ASSIGN,
 GREATER_THAN, GREATER_THAN_OR_EQUAL, COLON3, INSTANCE_VAR, CLASS_VAR} Type;
 
+typedef enum state {EXPR_BEG, EXPR_FNAME, EXPR_DOT, EXPR_CLASS} State;
+
 typedef struct token {
   char* value;
   Type type;
@@ -16,6 +18,7 @@ typedef struct lexer {
   Token* head;
   Token* tail;
   Type curr_type;
+  State state;
   char* code;
   char curr_char;
   bool print_tokens;
