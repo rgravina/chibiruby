@@ -180,95 +180,29 @@ void test_lexer_greater_than() {
   crb_free_lexer();
 }
 
-// TODO: more cases
-/*
-code = "`cvs diff parse.y`"
-> pp Ripper.lex(code)
-[[[1, 0], :on_backtick, "`"],
- [[1, 1], :on_tstring_content, "cvs diff parse.y"],
- [[1, 17], :on_tstring_end, "`"]]
+void test_lexer_identifier() {
+  char* code = "a\n@a\n@@a\na?";
+  crb_init_lexer(code);
+  crb_lexer_lex();
+  ok(lexer->num_tokens == 7);
+  ok(lexer->in_token == false);
+  check_token(1, 0, IDENTIFIER, "a");
+  check_token(1, 1, NEWLINE, "\n");
+  check_token(2, 0, INSTANCE_VAR, "@a");
+  check_token(2, 2, NEWLINE, "\n");
+  check_token(3, 0, CLASS_VAR, "@@a");
+  check_token(3, 3, NEWLINE, "\n");
+  check_token(4, 0, IDENTIFIER, "a?");
+  crb_free_lexer();
+}
 
-code = 'obj.`("cvs diff parse.y")'
-> pp Ripper.lex(code)
-[[[1, 0], :on_ident, "obj"],
- [[1, 3], :on_period, "."],
- [[1, 4], :on_backtick, "`"],
- [[1, 5], :on_lparen, "("],
- [[1, 6], :on_tstring_beg, "\""],
- [[1, 7], :on_tstring_content, "cvs diff parse.y"],
- [[1, 23], :on_tstring_end, "\""],
- [[1, 24], :on_rparen, ")"]]
-
-code = "print(<<EOS)"
-> pp Ripper.lex(code)
-[[[1, 0], :on_ident, "print"],
-[[1, 5], :on_lparen, "("],
-[[1, 6], :on_heredoc_beg, "<<EOS"]]
-
-code = "class Greeter\n   def initialize(name = \"World\")\n     @name = name\n   end\n\n   def say_hi\n     puts \"Hi #{@name}!\"\n   end\n   def say_bye\n     puts \"Bye #{@name}, come back soon.\"\n   end\n end"
-> pp Ripper.lex(code)
-[[[1, 0], :on_kw, "class"],
- [[1, 5], :on_sp, " "],
- [[1, 6], :on_const, "Greeter"],
- [[1, 13], :on_nl, "\n"],
- [[2, 0], :on_sp, "   "],
- [[2, 3], :on_kw, "def"],
- [[2, 6], :on_sp, " "],
- [[2, 7], :on_ident, "initialize"],
- [[2, 17], :on_lparen, "("],
- [[2, 18], :on_ident, "name"],
- [[2, 22], :on_sp, " "],
- [[2, 23], :on_op, "="],
- [[2, 24], :on_sp, " "],
- [[2, 25], :on_tstring_beg, "\""],
- [[2, 26], :on_tstring_content, "World"],
- [[2, 31], :on_tstring_end, "\""],
- [[2, 32], :on_rparen, ")"],
- [[2, 33], :on_ignored_nl, "\n"],
- [[3, 0], :on_sp, "     "],
- [[3, 5], :on_ivar, "@name"],
- [[3, 10], :on_sp, " "],
- [[3, 11], :on_op, "="],
- [[3, 12], :on_sp, " "],
- [[3, 13], :on_ident, "name"],
- [[3, 17], :on_nl, "\n"],
- [[4, 0], :on_sp, "   "],
- [[4, 3], :on_kw, "end"],
- [[4, 6], :on_nl, "\n"],
- [[5, 0], :on_ignored_nl, "\n"],
- [[6, 0], :on_sp, "   "],
- [[6, 3], :on_kw, "def"],
- [[6, 6], :on_sp, " "],
- [[6, 7], :on_ident, "say_hi"],
- [[6, 13], :on_nl, "\n"],
- [[7, 0], :on_sp, "     "],
- [[7, 5], :on_ident, "puts"],
- [[7, 9], :on_sp, " "],
- [[7, 10], :on_tstring_beg, "\""],
- [[7, 11], :on_tstring_content, "Hi !"],
- [[7, 15], :on_tstring_end, "\""],
- [[7, 16], :on_nl, "\n"],
- [[8, 0], :on_sp, "   "],
- [[8, 3], :on_kw, "end"],
- [[8, 6], :on_nl, "\n"],
- [[9, 0], :on_sp, "   "],
- [[9, 3], :on_kw, "def"],
- [[9, 6], :on_sp, " "],
- [[9, 7], :on_ident, "say_bye"],
- [[9, 14], :on_nl, "\n"],
- [[10, 0], :on_sp, "     "],
- [[10, 5], :on_ident, "puts"],
- [[10, 9], :on_sp, " "],
- [[10, 10], :on_tstring_beg, "\""],
- [[10, 11], :on_tstring_content, "Bye , come back soon."],
- [[10, 32], :on_tstring_end, "\""],
- [[10, 33], :on_nl, "\n"],
- [[11, 0], :on_sp, "   "],
- [[11, 3], :on_kw, "end"],
- [[11, 6], :on_nl, "\n"],
- [[12, 0], :on_sp, " "],
- [[12, 1], :on_kw, "end"]]
- */
+void test_lexer_greeter() {
+  char* code = code = "class Greeter\n   def initialize(name = \"World\")\n     @name = name\n   end\n\n   def say_hi\n     puts \"Hi #{@name}!\"\n   end\n   def say_bye\n     puts \"Bye #{@name}, come back soon.\"\n   end\n end";
+  crb_init_lexer(code);
+  // For now, just test that it can parse it without running into problems
+  crb_lexer_lex();
+  crb_free_lexer();
+}
 
 int main() {
   plan(NO_PLAN);
@@ -281,5 +215,7 @@ int main() {
   test_lexer_eof();
   test_lexer_exclamation();
   test_lexer_greater_than();
+  test_lexer_identifier();
+  test_lexer_greeter();
   done_testing();
 }

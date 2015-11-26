@@ -128,7 +128,10 @@ void process_long_token() {
       }
       break;
     case IDENTIFIER:
-      if (!valid_identifier_char(lexer->curr_char)) {
+    case INSTANCE_VAR:
+    case CLASS_VAR:
+      // TODO: support '!' and '?' at end of instance vars
+      if (!valid_identifier_char()) {
         add_token();
         pushback();
       } else {
@@ -162,9 +165,6 @@ void start_long_token(Type type) {
 }
 
 void process_short_token() {
-  /*
-   * token :: keyword | identifier | punctuator | operator | literal
-   */
   char next_char;
   switch(lexer->curr_char) {
     case '0': case '1': case '2': case '3': case '4':
@@ -267,7 +267,18 @@ void process_short_token() {
       }
       break;
     default:
-      start_long_token(IDENTIFIER);
+      if (lexer->curr_char == '@') {
+        next_char = peek();
+        if (next_char == '@') {
+          advance_token_and_lexer();
+          start_long_token(CLASS_VAR);
+        } else {
+          advance_token_and_lexer();
+          start_long_token(INSTANCE_VAR);
+        }
+      } else {
+        start_long_token(IDENTIFIER);
+      }
       advance_token();
   } // switch
 }
@@ -319,7 +330,7 @@ static const char *TypeString[] = {
   "Left Paren", "Right Paren", "Left Bracket", "Right Bracket", "Comma", "String Start", "String Content",
   "String End", "Left Brace", "Right Brace", "Symbol Beginning", "Colon 2",
   "BAR", "NOT", "EQUAL", "NOT_EQUAL", "NOT_MATCH", "RIGHT_SHIFT", "OP_ASSIGN",
-  "GREATER_THAN", "GREATER_THAN_OR_EQUAL", "COLON3"
+  "GREATER_THAN", "GREATER_THAN_OR_EQUAL", "COLON3", "INSTANCE_VAR", "CLASS_VAR"
 };
 void print_token(Token* token) {
   printf("-- token %s '%s' at (%lu, %lu)\n", TypeString[token->type], token->value, token->lineno, token->start);
@@ -336,7 +347,14 @@ void pushback() {
 }
 
 bool valid_identifier_char() {
-  //FIXME: use proper Ruby leixcal rules for identifiers
+  //FIXME: use proper Ruby lexical rules for identifiers (start, mid and end)
+  char next_char = peek();
+  if (lexer->curr_char == '!' || lexer->curr_char == '?') {
+    // e.g. name! or name?
+    if (next_char != '=') {
+      return true;
+    }
+  }
   return isalpha(lexer->curr_char);
 }
 

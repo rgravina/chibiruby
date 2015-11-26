@@ -1,7 +1,58 @@
 # ChibiRuby
 
-ChibiRuby is a minimal implementation of the [Ruby](http://www.ruby-lang.org/) programming language.
+ChibiRuby is a minimal implementation of the [Ruby](http://www.ruby-lang.org/) programming language. This is a work in progress - only lexing/parsing has been partially completed.
+
+* Scanning and parsing - 20%
+* Execution - 0%
+* Virtual Machine - 0%
+* Standard Library - 0%
 
 ## Purpose
 
-ChibiRuby is being developed to learn more about Ruby and developing an interpreter for it in C.
+ChibiRuby is being developed to learn more about Ruby and developing an interpreter in C.
+
+## Limitations
+
+Currently, `chibirb` can scan code of the following complexity:
+
+```ruby
+# methods with blocks
+10.times do |n|
+  puts n
+end
+```
+
+```ruby
+# classes
+class Greeter
+  def initialize(name = "World")
+    @name = name
+  end
+  def say_hi
+    puts "Hi #{@name}!"
+  end
+  def say_bye
+    puts "Bye #{@name}, come back soon."
+  end
+end
+```
+
+Currently does not support:
+
+* Code embedded in strings (`"Hello #{name}"`), or backticks, heredocs.
+* Numbers other than Integers or Floats (and only of the form X.Y for now)
+* ... many other features ...
+
+## Testing
+
+Currently, the default make target runs the tests. To make tests explicitly:
+
+`
+make test
+`
+
+To build `chibirb`
+
+`
+make chibirb
+`
