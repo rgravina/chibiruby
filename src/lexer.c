@@ -4,19 +4,23 @@
 #include <ctype.h>
 #include "lexer.h"
 
-Token* new_token();
-void add_token(Token* token);
+// lexer movement/inspection
+bool should_abort_now();
 char peek();
 void pushback();
+void advance_token_and_lexer();
+void advance_token();
+// token inspection
 void print_token(Token* token);
 bool is_keyword(Token* token);
-bool is_operator(Token* token);
 bool valid_identifier_char();
-void process_inside_token();
-void start_next_token();
+// token creation and processing
+Token* new_token();
+void add_token();
 void add_token_here(Type type);
-void start_new_token(Type type);
-bool should_abort_now();
+void process_short_token();
+void process_long_token();
+void start_long_token(Type type);
 
 void crb_init_lexer(char* code) {
   lexer = (Lexer*)malloc(sizeof(Lexer));
@@ -33,6 +37,7 @@ void crb_init_lexer(char* code) {
   lexer->curr_end_pos = 0;
 }
 
+// used for iterating through the tokens from outside
 static Token* curr_token;
 Token* crb_next_token() {
   if (curr_token == NULL) {
@@ -48,6 +53,7 @@ void crb_free_lexer() {
   while (token != NULL) {
     Token* temp = token;
     token = token->next;
+    free(temp->value);
     free(temp);
   }
   free(lexer);
@@ -55,21 +61,21 @@ void crb_free_lexer() {
 }
 
 void crb_lexer_lex() {
-  int len = strlen(lexer->code);
-  for (lexer->curr_pos = 0; lexer->curr_pos < len; lexer->curr_pos++) {
+  while (lexer->curr_pos < strlen(lexer->code)) {
     lexer->curr_char = lexer->code[lexer->curr_pos];
     if (should_abort_now()) {
       break;
     }
-    if (lexer->in_token == true) {
-      process_inside_token();
+    if (lexer->in_token != true) {
+      process_short_token();
     } else {
-      start_next_token();
+      process_long_token();
     }
+    lexer->curr_pos++;
   }
   // add the final token if there is one
   if (lexer->in_token == true) {
-    add_token(new_token());
+    add_token();
   }
 }
 
@@ -85,7 +91,7 @@ bool should_abort_now() {
   }
 }
 
-void process_inside_token() {
+void process_long_token() {
   // handle numbers which require some lookahead
   switch(lexer->curr_type) {
     case INTEGER:
@@ -94,20 +100,18 @@ void process_inside_token() {
         if (isdigit(next_char)) {
           // it's a float, so keep going
           lexer->curr_type = FLOAT;
-          lexer->curr_end_pos++;
+          advance_token();
         } else {
           // add integer, and go back before the period
-          Token* token = new_token();
-          add_token(token);
+          add_token();
           pushback();
         }
       } else {
         if (!isdigit(lexer->curr_char)) {
-          Token* token = new_token();
-          add_token(token);
+          add_token();
           pushback();
         } else {
-          lexer->curr_end_pos++;
+          advance_token();
         }
       }
       break;
@@ -117,68 +121,47 @@ void process_inside_token() {
           lexer->newline_last_seen_pos = lexer->curr_pos+1;
           lexer->curr_lineno++;
         }
-        lexer->curr_end_pos++;
+        advance_token();
       } else {
-        Token* token = new_token();
-        add_token(token);
+        add_token();
         pushback();
       }
       break;
     case IDENTIFIER:
       if (!valid_identifier_char(lexer->curr_char)) {
-        Token* token = new_token();
-        add_token(token);
+        add_token();
         pushback();
       } else {
-        lexer->curr_end_pos++;
+        advance_token();
       }
       break;
     case STRING_CONTENT:
       if ((lexer->curr_char == '\"' && strcmp(lexer->tail->value, "\"") == 0) ||
           (lexer->curr_char == '\'' && strcmp(lexer->tail->value, "\'") == 0)) {
-        Token* token = new_token();
-        add_token(token);
+        add_token();
         add_token_here(STRING_END);
       } else {
-        lexer->curr_end_pos++;
-      }
-      break;
-    case RIGHT_SHIFT:
-      if (lexer->curr_char == '=') {
-        lexer->curr_end_pos++;
-        add_token_here(OP_ASSIGN);
-      } else {
-        add_token_here(RIGHT_SHIFT);
-        pushback();
-      }
-      break;
-    case SYMBOL_BEGINING:
-      if (lexer->curr_char == ':') {
-        lexer->curr_type = COLON2;
-        lexer->curr_end_pos++;
-      } else {
-        add_token_here(SYMBOL_BEGINING);
-        lexer->curr_end_pos++;
+        advance_token();
       }
       break;
     default:
       // just keep going with this token then
-      lexer->curr_end_pos++;
+      advance_token();
   } // switch
 }
 
 void add_token_here(Type type) {
   lexer->curr_type = type;
   lexer->curr_end_pos++;
-  add_token(new_token(lexer->code));
+  add_token();
 }
 
-void start_new_token(Type type) {
+void start_long_token(Type type) {
   lexer->curr_type = type;
   lexer->in_token = true;
 }
 
-void start_next_token() {
+void process_short_token() {
   /*
    * token :: keyword | identifier | punctuator | operator | literal
    */
@@ -186,12 +169,12 @@ void start_next_token() {
   switch(lexer->curr_char) {
     case '0': case '1': case '2': case '3': case '4':
     case '5': case '6': case '7': case '8': case '9':
-      start_new_token(INTEGER);
-      lexer->curr_end_pos++;
+      start_long_token(INTEGER);
+      advance_token();
       break;
     case ' ': case '\t': case '\f': case '\r': case '\13':
-      start_new_token(SPACE);
-      lexer->curr_end_pos++;
+      start_long_token(SPACE);
+      advance_token();
       break;
     case '\n':
       add_token_here(NEWLINE);
@@ -223,7 +206,20 @@ void start_next_token() {
       add_token_here(RBRACE);
       break;
     case ':':
-      start_new_token(SYMBOL_BEGINING);
+      next_char = peek();
+      if (next_char == ':') {
+        if (lexer->tail->type == SPACE) {
+          advance_token_and_lexer();
+          // e.g. ::Const
+          add_token_here(COLON3);          
+        } else {
+          advance_token_and_lexer();
+          // e.g. Net::SMTP
+          add_token_here(COLON2);          
+        }
+      } else {
+        add_token_here(SYMBOL_BEGINING);
+      }
       break;
     case ',':
       add_token_here(COMMA);
@@ -231,7 +227,7 @@ void start_next_token() {
     case '\'':
     case '\"':
       add_token_here(STRING_BEGINING);
-      start_new_token(STRING_CONTENT);
+      start_long_token(STRING_CONTENT);
       break;
     // TODO: handle other operators
     case '|':
@@ -243,12 +239,10 @@ void start_next_token() {
     case '!':
       next_char = peek();
       if (next_char == '=') {
-        lexer->curr_end_pos++;
-        lexer->curr_pos++;
+        advance_token_and_lexer();
         add_token_here(NOT_EQUAL);
       } else if (next_char == '~') {
-        lexer->curr_end_pos++;
-        lexer->curr_pos++;
+        advance_token_and_lexer();
         add_token_here(NOT_MATCH);
       } else {
         add_token_here(NOT);
@@ -257,24 +251,38 @@ void start_next_token() {
     case '>':
       next_char = peek();
       if (next_char == '=') {
-        lexer->curr_end_pos++;
-        lexer->curr_pos++;
+        advance_token_and_lexer();
         add_token_here(GREATER_THAN_OR_EQUAL);
       } else if (next_char == '>') {
-        lexer->curr_end_pos++;
-        lexer->curr_pos++;
-        start_new_token(RIGHT_SHIFT);
+        advance_token_and_lexer();
+        next_char = peek();
+        if (next_char == '=') {
+          advance_token_and_lexer();
+          add_token_here(OP_ASSIGN);
+        } else {
+          add_token_here(RIGHT_SHIFT);
+        }
       } else {
         add_token_here(GREATER_THAN);
       }
       break;
     default:
-      start_new_token(IDENTIFIER);
-      lexer->curr_end_pos++;
+      start_long_token(IDENTIFIER);
+      advance_token();
   } // switch
 }
 
-void add_token(Token* token) {
+void advance_token_and_lexer() {
+  lexer->curr_end_pos++;
+  lexer->curr_pos++;  
+}
+
+void advance_token() {
+  lexer->curr_end_pos++;
+}
+
+void add_token() {
+  Token* token = new_token();
   if (lexer->print_tokens) {
     print_token(token);
   }
@@ -311,10 +319,10 @@ static const char *TypeString[] = {
   "Left Paren", "Right Paren", "Left Bracket", "Right Bracket", "Comma", "String Start", "String Content",
   "String End", "Left Brace", "Right Brace", "Symbol Beginning", "Colon 2",
   "BAR", "NOT", "EQUAL", "NOT_EQUAL", "NOT_MATCH", "RIGHT_SHIFT", "OP_ASSIGN",
-  "GREATER_THAN", "GREATER_THAN_OR_EQUAL"
+  "GREATER_THAN", "GREATER_THAN_OR_EQUAL", "COLON3"
 };
 void print_token(Token* token) {
-  printf("-- token %s '%s' at (%d, %d)\n", TypeString[token->type], token->value, token->lineno, token->start);
+  printf("-- token %s '%s' at (%lu, %lu)\n", TypeString[token->type], token->value, token->lineno, token->start);
 }
 
 char peek() {
@@ -333,7 +341,7 @@ bool valid_identifier_char() {
 }
 
 /*
- * FIXME: This is a tempory solution to looking up keywords and operators.
+ * FIXME: This is a tempory solution to looking up keywords.
  * Should use use a hash table, maybe something generated by `gperf`.
  */
 #define NUM_KEYWORDS 41
@@ -347,20 +355,6 @@ bool is_keyword(Token* token) {
   char* value = token->value;
   for(int i = 0; i < NUM_KEYWORDS; i++) {
     if (strcmp(value, KEYWORDS[i]) == 0) {
-      return true;
-    }
-  }
-  return false;
-}
-
-#define NUM_OPERATORS 29
-static char* OPERATORS[NUM_OPERATORS] = {"..", "...", "**", "**",
-"<=>", "+", "-", "*", "/", "%", "<<", ">>", "<", "<=", ">", "<=", ">", ">=",
-"==", "===", "!=", "!", "`", "=~", "!~", "::", "&&", "||", "&."};
-bool is_operator(Token* token) {
-  char* value = token->value;
-  for(int i = 0; i < NUM_OPERATORS; i++) {
-    if (strcmp(value, OPERATORS[i]) == 0) {
       return true;
     }
   }

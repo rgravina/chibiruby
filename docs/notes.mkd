@@ -6,6 +6,7 @@ C
 * Got a couple of O'Reilly books also at the time, but wanted a more tutorial format so haven't used them yet.
 * For testing, I started with MinUnit which was nice for writing simple tests and getting started. After I while I rewrote the tests using [libtap](http://github.com/zorgnax/libtap) which meant I could refactor tests into functions, and get some convenience functions also.
 * I should really use a hash table for looking up keywords. Ruby uses `gperf` and a `keywords` file which generates a very fast lookup table for that specific list of keys.
+* Used `int` for lexer current pos (and other position indexes) originally, but since `len(string)` returns an `unsigned long` I changed all these types to `unsigned long`. Allows for parsing longer strings, but uses more storage per token. May change later.
 
 Ruby
 =

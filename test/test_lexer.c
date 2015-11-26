@@ -92,14 +92,21 @@ void test_lexer_string_single_quote() {
   crb_free_lexer();
 }
 
-void test_lexer_symbol() {
-  char* code = ":hello";
+void test_lexer_colon() {
+  char* code = ":hello\n::hello\n ::hello";
   crb_init_lexer(code);
   crb_lexer_lex();
-  ok(lexer->num_tokens == 2);
+  cmp_ok(lexer->num_tokens, "==", 9);
   ok(lexer->in_token == false);
   check_token(1, 0, SYMBOL_BEGINING, ":");
   check_token(1, 1, IDENTIFIER, "hello");
+  check_token(1, 6, NEWLINE, "\n");
+  check_token(2, 0, COLON2, "::");
+  check_token(2, 2, IDENTIFIER, "hello");
+  check_token(2, 7, NEWLINE, "\n");
+  check_token(3, 0, SPACE, " ");
+  check_token(3, 1, COLON3, "::");
+  check_token(3, 3, IDENTIFIER, "hello");
   crb_free_lexer();
 }
 
@@ -269,7 +276,7 @@ int main() {
   test_lexer_array();
   test_lexer_string_double_quote();
   test_lexer_string_single_quote();
-  test_lexer_symbol();
+  test_lexer_colon();
   test_lexer_brace();
   test_lexer_eof();
   test_lexer_exclamation();
