@@ -130,7 +130,6 @@ void process_long_token() {
     case IDENTIFIER:
     case INSTANCE_VAR:
     case CLASS_VAR:
-      // TODO: support '!' and '?' at end of instance vars
       if (!valid_identifier_char()) {
         add_token();
         pushback();
@@ -211,11 +210,11 @@ void process_short_token() {
         if (lexer->tail->type == SPACE) {
           advance_token_and_lexer();
           // e.g. ::Const
-          add_token_here(COLON3);          
+          add_token_here(COLON3);
         } else {
           advance_token_and_lexer();
           // e.g. Net::SMTP
-          add_token_here(COLON2);          
+          add_token_here(COLON2);
         }
       } else {
         add_token_here(SYMBOL_BEGINING);
@@ -229,7 +228,6 @@ void process_short_token() {
       add_token_here(STRING_BEGINING);
       start_long_token(STRING_CONTENT);
       break;
-    // TODO: handle other operators
     case '|':
       add_token_here(BAR);
       break;
@@ -285,7 +283,7 @@ void process_short_token() {
 
 void advance_token_and_lexer() {
   lexer->curr_end_pos++;
-  lexer->curr_pos++;  
+  lexer->curr_pos++;
 }
 
 void advance_token() {

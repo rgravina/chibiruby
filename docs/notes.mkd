@@ -17,4 +17,5 @@ Ruby
   * Lexer - Start with 8.7 Tokens
 * Then, I went back to look at `parse_yylex()`.
 * Why does ruby `Ripper.lex` output contain 'ignored newlines'? (`on_ignored_nl`) v.s. 'newlines' (`on_nl`)?
+  * A: Because somtimes newlines denote the end of a statement and somtimes they do not. The RHG talks about this in Chapter 11.
 * In `Ripper.lex` output, why is whitespace and comments given tokens containing all of the content?
