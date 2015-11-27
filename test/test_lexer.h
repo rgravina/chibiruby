@@ -1,0 +1,1 @@
+void crb_run_lexer_tests();

@@ -4,10 +4,13 @@ BIN_DIR=./bin
 TARGET = chibirb
 TARGET_TEST = chibirb_test
 SRC_FILES=\
-  src/lexer.c
+  src/lexer.c \
+	src/parser.c
 SRC_FILES_TEST=\
 	test/tap.c \
 	test/test_lexer.c \
+	test/test_parser.c \
+	test/test_all.c \
 	$(SRC_FILES)
 INC_DIRS=-Isrc
 

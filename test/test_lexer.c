@@ -3,7 +3,7 @@
 #include "tap.h"
 #include "lexer.h"
 
-void check_token(int lineno, int start, Type type, char* value) {
+void check_token(int lineno, int start, TokenType type, char* value) {
   Token* token = crb_next_token();
   cmp_ok(token->lineno, "==", lineno);
   cmp_ok(token->start, "==", start);
@@ -17,22 +17,22 @@ void test_lexer_method_block() {
   crb_lexer_lex();
   ok(lexer->num_tokens == 16);
   ok(lexer->in_token == false);
-  check_token(1, 0, INTEGER, "10");
-  check_token(1, 2, PERIOD, ".");
-  check_token(1, 3, IDENTIFIER, "times");
-  check_token(1, 8, SPACE, " ");
-  check_token(1, 9, KEYWORD, "do");
-  check_token(1, 11, SPACE, " ");
-  check_token(1, 12, BAR, "|");
-  check_token(1, 13, IDENTIFIER, "n");
-  check_token(1, 14, BAR, "|");
-  check_token(1, 15, NEWLINE, "\n");
-  check_token(2, 0, SPACE, "  ");
-  check_token(2, 2, IDENTIFIER, "puts");
-  check_token(2, 6, SPACE, " ");
-  check_token(2, 7, IDENTIFIER, "n");
-  check_token(2, 8, NEWLINE, "\n");
-  check_token(3, 0, KEYWORD, "end");
+  check_token(1, 0, tINTEGER, "10");
+  check_token(1, 2, tPERIOD, ".");
+  check_token(1, 3, tIDENTIFIER, "times");
+  check_token(1, 8, tSPACE, " ");
+  check_token(1, 9, tKEYWORD, "do");
+  check_token(1, 11, tSPACE, " ");
+  check_token(1, 12, tBAR, "|");
+  check_token(1, 13, tIDENTIFIER, "n");
+  check_token(1, 14, tBAR, "|");
+  check_token(1, 15, tNEWLINE, "\n");
+  check_token(2, 0, tSPACE, "  ");
+  check_token(2, 2, tIDENTIFIER, "puts");
+  check_token(2, 6, tSPACE, " ");
+  check_token(2, 7, tIDENTIFIER, "n");
+  check_token(2, 8, tNEWLINE, "\n");
+  check_token(3, 0, tKEYWORD, "end");
   crb_free_lexer();
 }
 
@@ -42,25 +42,25 @@ void test_lexer_array() {
   crb_lexer_lex();
   ok(lexer->num_tokens == 19);
   ok(lexer->in_token == false);
-  check_token(1, 0, IDENTIFIER, "array");
-  check_token(1, 5, SPACE, " ");
-  check_token(1, 6, EQUAL, "=");
-  check_token(1, 7, SPACE, " ");
-  check_token(1, 8, LBRACKET, "[");
-  check_token(1, 9, INTEGER, "1");
-  check_token(1, 10, COMMA, ",");
-  check_token(1, 11, INTEGER, "2");
-  check_token(1, 12, COMMA, ",");
-  check_token(1, 13, INTEGER, "3");
-  check_token(1, 14, RBRACKET, "]");
-  check_token(1, 15, NEWLINE, "\n");
-  check_token(2, 0, SPACE, " ");
-  check_token(2, 1, IDENTIFIER, "puts");
-  check_token(2, 5, SPACE, " ");
-  check_token(2, 6, IDENTIFIER, "array");
-  check_token(2, 11, LBRACKET, "[");
-  check_token(2, 12, INTEGER, "1");
-  check_token(2, 13, RBRACKET, "]");
+  check_token(1, 0, tIDENTIFIER, "array");
+  check_token(1, 5, tSPACE, " ");
+  check_token(1, 6, tEQUAL, "=");
+  check_token(1, 7, tSPACE, " ");
+  check_token(1, 8, tLBRACKET, "[");
+  check_token(1, 9, tINTEGER, "1");
+  check_token(1, 10, tCOMMA, ",");
+  check_token(1, 11, tINTEGER, "2");
+  check_token(1, 12, tCOMMA, ",");
+  check_token(1, 13, tINTEGER, "3");
+  check_token(1, 14, tRBRACKET, "]");
+  check_token(1, 15, tNEWLINE, "\n");
+  check_token(2, 0, tSPACE, " ");
+  check_token(2, 1, tIDENTIFIER, "puts");
+  check_token(2, 5, tSPACE, " ");
+  check_token(2, 6, tIDENTIFIER, "array");
+  check_token(2, 11, tLBRACKET, "[");
+  check_token(2, 12, tINTEGER, "1");
+  check_token(2, 13, tRBRACKET, "]");
   crb_free_lexer();
 }
 
@@ -70,11 +70,11 @@ void test_lexer_string_double_quote() {
   crb_lexer_lex();
   ok(lexer->num_tokens == 5);
   ok(lexer->in_token == false);
-  check_token(1, 0, IDENTIFIER, "puts");
-  check_token(1, 4, SPACE, " ");
-  check_token(1, 5, STRING_BEGINING, "\"");
-  check_token(1, 6, STRING_CONTENT, "Hello, World!");
-  check_token(1, 19, STRING_END, "\"");
+  check_token(1, 0, tIDENTIFIER, "puts");
+  check_token(1, 4, tSPACE, " ");
+  check_token(1, 5, tSTRING_BEGINING, "\"");
+  check_token(1, 6, tSTRING_CONTENT, "Hello, World!");
+  check_token(1, 19, tSTRING_END, "\"");
   crb_free_lexer();
 }
 
@@ -84,11 +84,11 @@ void test_lexer_string_single_quote() {
   crb_lexer_lex();
   ok(lexer->num_tokens == 5);
   ok(lexer->in_token == false);
-  check_token(1, 0, IDENTIFIER, "puts");
-  check_token(1, 4, SPACE, " ");
-  check_token(1, 5, STRING_BEGINING, "'");
-  check_token(1, 6, STRING_CONTENT, "Hello, World!");
-  check_token(1, 19, STRING_END, "'");
+  check_token(1, 0, tIDENTIFIER, "puts");
+  check_token(1, 4, tSPACE, " ");
+  check_token(1, 5, tSTRING_BEGINING, "'");
+  check_token(1, 6, tSTRING_CONTENT, "Hello, World!");
+  check_token(1, 19, tSTRING_END, "'");
   crb_free_lexer();
 }
 
@@ -98,15 +98,15 @@ void test_lexer_colon() {
   crb_lexer_lex();
   cmp_ok(lexer->num_tokens, "==", 9);
   ok(lexer->in_token == false);
-  check_token(1, 0, SYMBOL_BEGINING, ":");
-  check_token(1, 1, IDENTIFIER, "hello");
-  check_token(1, 6, NEWLINE, "\n");
-  check_token(2, 0, COLON2, "::");
-  check_token(2, 2, IDENTIFIER, "hello");
-  check_token(2, 7, NEWLINE, "\n");
-  check_token(3, 0, SPACE, " ");
-  check_token(3, 1, COLON3, "::");
-  check_token(3, 3, IDENTIFIER, "hello");
+  check_token(1, 0, tSYMBOL_BEGINING, ":");
+  check_token(1, 1, tIDENTIFIER, "hello");
+  check_token(1, 6, tNEWLINE, "\n");
+  check_token(2, 0, tCOLON2, "::");
+  check_token(2, 2, tIDENTIFIER, "hello");
+  check_token(2, 7, tNEWLINE, "\n");
+  check_token(3, 0, tSPACE, " ");
+  check_token(3, 1, tCOLON3, "::");
+  check_token(3, 3, tIDENTIFIER, "hello");
   crb_free_lexer();
 }
 
@@ -116,9 +116,9 @@ void test_lexer_brace() {
   crb_lexer_lex();
   ok(lexer->num_tokens == 3);
   ok(lexer->in_token == false);
-  check_token(1, 0, LBRACE, "{");
-  check_token(1, 1, INTEGER, "1");
-  check_token(1, 2, RBRACE, "}");
+  check_token(1, 0, tLBRACE, "{");
+  check_token(1, 1, tINTEGER, "1");
+  check_token(1, 2, tRBRACE, "}");
   crb_free_lexer();
 }
 
@@ -128,7 +128,7 @@ void test_lexer_eof() {
   crb_lexer_lex();
   ok(lexer->num_tokens == 1);
   ok(lexer->in_token == false);
-  check_token(1, 0, INTEGER, "1");
+  check_token(1, 0, tINTEGER, "1");
   crb_free_lexer();
 }
 
@@ -137,21 +137,21 @@ void test_lexer_exclamation() {
   crb_init_lexer(code);
   crb_lexer_lex();
   ok(lexer->num_tokens == 1);
-  check_token(1, 0, NOT, "!");
+  check_token(1, 0, tNOT, "!");
   crb_free_lexer();
 
   code = "!=";
   crb_init_lexer(code);
   crb_lexer_lex();
   ok(lexer->num_tokens == 1);
-  check_token(1, 0, NOT_EQUAL, "!=");
+  check_token(1, 0, tNOT_EQUAL, "!=");
   crb_free_lexer();
 
   code = "!~";
   crb_init_lexer(code);
   crb_lexer_lex();
   ok(lexer->num_tokens == 1);
-  check_token(1, 0, NOT_MATCH, "!~");
+  check_token(1, 0, tNOT_MATCH, "!~");
   crb_free_lexer();
 }
 
@@ -161,38 +161,40 @@ void test_lexer_greater_than() {
   crb_lexer_lex();
   ok(lexer->num_tokens == 16);
   ok(lexer->in_token == false);
-  check_token(1, 0, INTEGER, "1");
-  check_token(1, 1, GREATER_THAN, ">");
-  check_token(1, 2, INTEGER, "2");
-  check_token(1, 3, NEWLINE, "\n");
-  check_token(2, 0, INTEGER, "1");
-  check_token(2, 1, RIGHT_SHIFT, ">>");
-  check_token(2, 3, INTEGER, "2");
-  check_token(2, 4, NEWLINE, "\n");
-  check_token(3, 0, INTEGER, "1");
-  check_token(3, 1, OP_ASSIGN, ">>=");
-  check_token(3, 4, INTEGER, "2");
-  check_token(3, 5, NEWLINE, "\n");
-  check_token(4, 0, INTEGER, "1");
-  check_token(4, 1, GREATER_THAN_OR_EQUAL, ">=");
-  check_token(4, 3, INTEGER, "2");
-  check_token(4, 4, NEWLINE, "\n");
+  check_token(1, 0, tINTEGER, "1");
+  check_token(1, 1, tGREATER_THAN, ">");
+  check_token(1, 2, tINTEGER, "2");
+  check_token(1, 3, tNEWLINE, "\n");
+  check_token(2, 0, tINTEGER, "1");
+  check_token(2, 1, tRIGHT_SHIFT, ">>");
+  check_token(2, 3, tINTEGER, "2");
+  check_token(2, 4, tNEWLINE, "\n");
+  check_token(3, 0, tINTEGER, "1");
+  check_token(3, 1, tOP_ASSIGN, ">>=");
+  check_token(3, 4, tINTEGER, "2");
+  check_token(3, 5, tNEWLINE, "\n");
+  check_token(4, 0, tINTEGER, "1");
+  check_token(4, 1, tGREATER_THAN_OR_EQUAL, ">=");
+  check_token(4, 3, tINTEGER, "2");
+  check_token(4, 4, tNEWLINE, "\n");
   crb_free_lexer();
 }
 
-void test_lexer_identifier() {
-  char* code = "a\n@a\n@@a\na?";
+void test_lexer_identifiers_and_constants() {
+  char* code = "a\n@a\n@@a\na?\nA";
   crb_init_lexer(code);
   crb_lexer_lex();
-  ok(lexer->num_tokens == 7);
+  ok(lexer->num_tokens == 9);
   ok(lexer->in_token == false);
-  check_token(1, 0, IDENTIFIER, "a");
-  check_token(1, 1, NEWLINE, "\n");
-  check_token(2, 0, INSTANCE_VAR, "@a");
-  check_token(2, 2, NEWLINE, "\n");
-  check_token(3, 0, CLASS_VAR, "@@a");
-  check_token(3, 3, NEWLINE, "\n");
-  check_token(4, 0, IDENTIFIER, "a?");
+  check_token(1, 0, tIDENTIFIER, "a");
+  check_token(1, 1, tNEWLINE, "\n");
+  check_token(2, 0, tINSTANCE_VAR, "@a");
+  check_token(2, 2, tNEWLINE, "\n");
+  check_token(3, 0, tCLASS_VAR, "@@a");
+  check_token(3, 3, tNEWLINE, "\n");
+  check_token(4, 0, tIDENTIFIER, "a?");
+  check_token(4, 2, tNEWLINE, "\n");
+  check_token(5, 0, tCONSTANT, "A");
   crb_free_lexer();
 }
 
@@ -204,8 +206,39 @@ void test_lexer_greeter() {
   crb_free_lexer();
 }
 
-int main() {
-  plan(NO_PLAN);
+void test_lexer_expr_begin() {
+  char* code = "";
+  crb_init_lexer(code);
+  crb_lexer_lex();
+  cmp_ok(lexer->state, "==", EXPR_BEG);
+  crb_free_lexer();
+}
+
+void test_lexer_expr_mid() {
+  char* code = "return";
+  crb_init_lexer(code);
+  crb_lexer_lex();
+  cmp_ok(lexer->state, "==", EXPR_MID);
+  crb_free_lexer();
+}
+
+void test_lexer_expr_class() {
+  char* code = "class";
+  crb_init_lexer(code);
+  crb_lexer_lex();
+  cmp_ok(lexer->state, "==", EXPR_CLASS);
+  crb_free_lexer();
+}
+
+void test_lexer_expr_end() {
+  char* code = "\"test\"";
+  crb_init_lexer(code);
+  crb_lexer_lex();
+  cmp_ok(lexer->state, "==", EXPR_END);
+  crb_free_lexer();
+}
+
+void crb_run_lexer_tests() {
   test_lexer_method_block();
   test_lexer_array();
   test_lexer_string_double_quote();
@@ -215,7 +248,10 @@ int main() {
   test_lexer_eof();
   test_lexer_exclamation();
   test_lexer_greater_than();
-  test_lexer_identifier();
+  test_lexer_identifiers_and_constants();
   test_lexer_greeter();
-  done_testing();
+  test_lexer_expr_begin();
+  test_lexer_expr_mid();
+  test_lexer_expr_class();
+  test_lexer_expr_end();  
 }

@@ -29,10 +29,12 @@ class Greeter
     @name = name
   end
   def say_hi
-    puts "Hi #{@name}!"
+    # string interpolation not supported yet
+    puts "Hi " + @name +"!"
   end
   def say_bye
-    puts "Bye #{@name}, come back soon."
+    # string interpolation not supported yet
+    puts "Bye " + @name + ", come back soon."
   end
 end
 ```
@@ -40,7 +42,7 @@ end
 Currently does not support:
 
 * Code embedded in strings (`"Hello #{name}"`), or backticks, heredocs.
-* Numbers other than Integers or Floats (and only of the form X.Y for now)
+* Numbers other than Integers or Float (only of the form X.Y for now)
 * ... many other features ...
 
 ## Testing

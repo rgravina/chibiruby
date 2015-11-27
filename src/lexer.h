@@ -1,14 +1,27 @@
 #include <stdbool.h>
 
-typedef enum type {NONE, INTEGER, FLOAT, PERIOD, IDENTIFIER, SPACE, KEYWORD, NEWLINE, LPAREN, RPAREN, LBRACKET, RBRACKET, COMMA, STRING_BEGINING, STRING_CONTENT, STRING_END,
-LBRACE, RBRACE, SYMBOL_BEGINING, COLON2, BAR, NOT, EQUAL, NOT_EQUAL, NOT_MATCH, RIGHT_SHIFT, OP_ASSIGN,
-GREATER_THAN, GREATER_THAN_OR_EQUAL, COLON3, INSTANCE_VAR, CLASS_VAR} Type;
+typedef enum tokenType {tNONE, tINTEGER, tFLOAT, tPERIOD, tIDENTIFIER, tSPACE,
+  tKEYWORD, tNEWLINE, tLPAREN, tRPAREN, tLBRACKET, tRBRACKET, tCOMMA,
+  tSTRING_BEGINING, tSTRING_CONTENT, tSTRING_END, tLBRACE, tRBRACE,
+  tSYMBOL_BEGINING, tCOLON2, tBAR, tNOT, tEQUAL, tNOT_EQUAL, tNOT_MATCH, 
+  tRIGHT_SHIFT, tOP_ASSIGN, tGREATER_THAN, tGREATER_THAN_OR_EQUAL, tCOLON3,
+  tINSTANCE_VAR, tCLASS_VAR, tIGNORED_NEWLINE, tCONSTANT} TokenType;
 
-typedef enum state {EXPR_BEG, EXPR_FNAME, EXPR_DOT, EXPR_CLASS} State;
+typedef enum state {
+  EXPR_BEG,
+  EXPR_MID,
+  // EXPR_ARG,
+  // EXPR_CMDARG,
+  // EXPR_ENDARG,
+  EXPR_END,
+  EXPR_FNAME,
+  EXPR_DOT,
+  EXPR_CLASS
+} State;
 
 typedef struct token {
   char* value;
-  Type type;
+  TokenType type;
   unsigned long lineno;
   unsigned long start;
   struct token* next;
@@ -17,7 +30,7 @@ typedef struct token {
 typedef struct lexer {
   Token* head;
   Token* tail;
-  Type curr_type;
+  TokenType curr_type;
   State state;
   char* code;
   char curr_char;
