@@ -20,3 +20,4 @@ Ruby
   * A: Because somtimes newlines denote the end of a statement and sometimes they do not. The RHG talks about this in Chapter 11.
   * But then... in `Ripper.lex` output, why are whitespace and comments tokens contain all of the content?
 * The content in RHG Chapter 11 about `lex_state` was really helpful for implementing this. To begin with I just implemented the state changes as described before really understanding why they changed at those points.
+* You can get the grammar from the ruby `parse.y` with `ruby sample/exyacc.rb < parse.y`
