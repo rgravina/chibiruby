@@ -179,6 +179,10 @@ void parse_arg(Token* token) {
       puts("- Found '!'");
       parse_arg(crb_next_token());
       break;
+    case tUPLUS:
+      puts("- Found unary '+'");
+      parse_arg(crb_next_token());
+      break;
     default:
       parse_primary(token);
   }

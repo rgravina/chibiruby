@@ -13,6 +13,8 @@ void advance_token();
 // token inspection
 void print_token(Token* token);
 bool is_keyword(Token* token);
+bool is_after_operator();
+bool is_expression_beginning();
 bool valid_identifier_char();
 // token creation and processing
 Token* new_token();
@@ -212,6 +214,27 @@ void process_short_token() {
     case '#':
       //TODO: comments
       break;
+    case '+':
+      next_char = peek();
+      if (is_after_operator()) {
+        lexer->state = EXPR_ARG;
+        if (next_char == '@') {
+          advance_token_and_lexer();
+          add_token_here(tUPLUS);
+        } else {
+          add_token_here(tPLUS);
+        }
+      } else if (next_char == '=') {
+        advance_token_and_lexer();
+        add_token_here(tOP_ASSIGN);
+      } else if (is_expression_beginning()) {
+        lexer->state = EXPR_BEG;
+        add_token_here(tUPLUS);
+      } else {
+        lexer->state = EXPR_BEG;
+        add_token_here(tPLUS);
+      }
+      break;
     case ';':
       add_token_here(tSEMICOLON);
       break;
@@ -380,7 +403,7 @@ static const char *TypeString[] = {
   "String End", "Left Brace", "Right Brace", "Symbol Beginning", "Colon 2",
   "BAR", "NOT", "EQUAL", "NOT_EQUAL", "NOT_MATCH", "RIGHT_SHIFT", "OP_ASSIGN",
   "GREATER_THAN", "GREATER_THAN_OR_EQUAL", "COLON3", "tINSTANCE_VAR", "tCLASS_VAR", "tIGNORED_tNEWLINE",
-  "CONSTANT", "tSEMICOLON"
+  "CONSTANT", "tSEMICOLON", "tPLUS", "tUPLUS", "tMINUS", "tUMINUS"
 };
 void print_token(Token* token) {
   printf("-- token %s '%s' at (%lu, %lu)\n", TypeString[token->type], token->value, token->lineno, token->start);
@@ -406,6 +429,14 @@ bool valid_identifier_char() {
     }
   }
   return isalpha(lexer->curr_char);
+}
+
+bool is_after_operator() {
+  return (lexer->state == EXPR_FNAME || lexer->state == EXPR_DOT) ? true : false;
+}
+
+bool is_expression_beginning() {
+  return (lexer->state == EXPR_BEG || lexer->state == EXPR_MID || lexer->state == EXPR_CLASS) ? true : false;
 }
 
 /*

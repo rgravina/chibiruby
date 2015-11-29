@@ -238,6 +238,19 @@ void test_lexer_expr_end() {
   crb_free_lexer();
 }
 
+void test_lexer_expressions() {
+  char* code = "1+2\n+1";
+  crb_init_lexer(code);
+  crb_lexer_lex();
+  check_token(1, 0, tINTEGER, "1");
+  check_token(1, 1, tPLUS, "+");
+  check_token(1, 2, tINTEGER, "2");
+  check_token(1, 3, tNEWLINE, "\n");
+  check_token(2, 0, tUPLUS, "+");
+  check_token(2, 1, tINTEGER, "1");
+  crb_free_lexer();
+}
+
 void crb_run_lexer_tests() {
   test_lexer_method_block();
   test_lexer_array();
@@ -253,5 +266,6 @@ void crb_run_lexer_tests() {
   test_lexer_expr_begin();
   test_lexer_expr_mid();
   test_lexer_expr_class();
-  test_lexer_expr_end();  
+  test_lexer_expr_end();
+  test_lexer_expressions();
 }
