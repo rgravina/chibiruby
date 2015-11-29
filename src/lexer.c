@@ -11,7 +11,7 @@ void pushback();
 void advance_token_and_lexer();
 void advance_token();
 // token inspection
-void print_token(Token* token);
+static void print_token(Token* token);
 bool is_keyword(Token* token);
 bool is_after_operator();
 bool is_expression_beginning();
@@ -405,7 +405,7 @@ static const char *TypeString[] = {
   "GREATER_THAN", "GREATER_THAN_OR_EQUAL", "COLON3", "tINSTANCE_VAR", "tCLASS_VAR", "tIGNORED_tNEWLINE",
   "CONSTANT", "tSEMICOLON", "tPLUS", "tUPLUS", "tMINUS", "tUMINUS"
 };
-void print_token(Token* token) {
+static void print_token(Token* token) {
   printf("-- token %s '%s' at (%lu, %lu)\n", TypeString[token->type], token->value, token->lineno, token->start);
 }
 
