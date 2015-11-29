@@ -9,8 +9,8 @@ void parse_compound_statement();
 void parse_statement();
 void parse_expression();
 void parse_terminal();
-void parse_literal();
-void parse_primary();
+bool parse_literal();
+bool parse_primary();
 void parse_arg();
 bool parse_arg_expression();
 void parse_command();
@@ -217,10 +217,8 @@ void parse_arg() {
       parse_arg();
       break;
     default:
-      // to remove left-recursion of ARG op ARG statements.
-      if (!parse_arg_expression()) {
-        parse_primary();
-      }
+      // parse_arg_expression created to remove left-recursion of ARG op ARG statements.
+      parse_arg_expression() || parse_primary();
   }
 }
 
@@ -290,7 +288,7 @@ bool parse_arg_expression() {
   return true;
 }
 
-void parse_primary() {
+bool parse_primary() {
   /*
   PRIMARY: `(' COMPSTMT `)'
     | LITERAL
@@ -345,7 +343,7 @@ void parse_primary() {
       COMPSTMT
       end
   */
-  parse_literal();
+  return parse_literal();
 }
 
 void parse_when_args() {
@@ -510,7 +508,7 @@ void parse_variable() {
   */
 }
 
-void parse_literal() {
+bool parse_literal() {
   /*
   LITERAL         : numeric
                   | SYMBOL
@@ -526,8 +524,9 @@ void parse_literal() {
       print_token(token);
       break;
     default:
-      break;
+      return false;
   }
+  return true;
 }
 
 void parse_symbol() {
