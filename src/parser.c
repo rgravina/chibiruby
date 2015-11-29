@@ -12,6 +12,7 @@ void parse_terminal(Token* token);
 void parse_literal(Token* token);
 void parse_primary(Token* token);
 void parse_arg(Token* token);
+void parse_command(Token* token);
 
 void crb_init_parser(char* code) {
   crb_init_lexer(code);
@@ -89,6 +90,10 @@ void parse_expression(Token* token) {
         | `!' COMMAND
         | ARG
     */
+    if (token->type == tNOT) {
+      puts("- Found '!'");
+      parse_command(crb_next_token());
+    }
     parse_arg(token);
 }
 
@@ -111,7 +116,7 @@ void parse_call() {
   */
 }
 
-void parse_command() {
+void parse_command(Token* token) {
     /*
     COMMAND: OPERATION CALL_ARGS
           | PRIMARY `.' FNAME CALL_ARGS
@@ -119,6 +124,7 @@ void parse_command() {
           | super CALL_ARGS
           | yield CALL_ARGS
     */
+    parse_primary(token);
 }
 
 void parse_function() {
@@ -168,7 +174,14 @@ void parse_arg(Token* token) {
       | defined? ARG
       | PRIMARY
   */
-  parse_primary(token);
+  switch (token->type) {
+    case tNOT:
+      puts("- Found '!'");
+      parse_arg(crb_next_token());
+      break;
+    default:
+      parse_primary(token);
+  }
 }
 
 void parse_primary(Token* token) {
