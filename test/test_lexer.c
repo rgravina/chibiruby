@@ -251,6 +251,18 @@ void test_lexer_expressions() {
   crb_free_lexer();
 }
 
+void test_lexer_mod() {
+  char* code = "1%2";
+  crb_init_lexer(code);
+  crb_lexer_lex();
+  ok(lexer->num_tokens == 3);
+  ok(lexer->in_token == false);
+  check_token(1, 0, tINTEGER, "1");
+  check_token(1, 1, tPERCENT, "%");
+  check_token(1, 2, tINTEGER, "2");
+  crb_free_lexer();
+}
+
 void crb_run_lexer_tests() {
   test_lexer_method_block();
   test_lexer_array();
@@ -268,4 +280,5 @@ void crb_run_lexer_tests() {
   test_lexer_expr_class();
   test_lexer_expr_end();
   test_lexer_expressions();
+  test_lexer_mod();
 }

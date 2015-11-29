@@ -282,6 +282,11 @@ bool parse_arg_expression() {
       crb_next_token();
       parse_arg();
       break;
+    case tPERCENT:
+      puts("- Found '%'");
+      crb_next_token();
+      parse_arg();
+      break;
     default:
       return false;
   }

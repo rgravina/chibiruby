@@ -308,6 +308,9 @@ void process_short_token() {
     case ';':
       add_token_here(tSEMICOLON);
       break;
+    case '%':
+      add_token_here(tPERCENT);
+      break;
     case '.':
       lexer->state = EXPR_BEG;
       next_char = peek();
@@ -488,7 +491,7 @@ static const char *TypeString[] = {
   "BAR", "NOT", "EQUAL", "NOT_EQUAL", "NOT_MATCH", "RIGHT_SHIFT", "OP_ASSIGN",
   "GREATER_THAN", "GREATER_THAN_OR_EQUAL", "COLON3", "tINSTANCE_VAR", "tCLASS_VAR", "tIGNORED_tNEWLINE",
   "CONSTANT", "tSEMICOLON", "tPLUS", "tUPLUS", "tMINUS", "tUMINUS", "tLAMBDA", "tTILDE", "tMULTIPLY",
-  "tDIVIDE", "tPOW", "tREGEXP_BEG"
+  "tDIVIDE", "tPOW", "tREGEXP_BEG", "tPERCENT"
 };
 static void print_token(Token* token) {
   printf("-- token %s '%s' at (%lu, %lu)\n", TypeString[token->type], token->value, token->lineno, token->start);
