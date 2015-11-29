@@ -12,6 +12,7 @@ void parse_opt_terms();
 void parse_terms();
 void parse_none();
 void parse_error();
+void parse_keyword_BEGIN();
 
 void crb_init_parser(char* code) {
   crb_init_lexer(code);
@@ -74,16 +75,29 @@ void parse_top_stmts() {
 }
 
 void parse_top_stmt() {
+  /* top_stmt : stmt
+  		| keyword_BEGIN '{' top_compstmt '}'
+  */
+  parse_keyword_BEGIN();
+  parse_top_compstmt();
 }
 
 void parse_opt_terms() {
+  // opt_terms: | terms
 }
 
 void parse_terms() {
+  // terms: term | terms ';'
 }
 
+void parse_term() {
+    // term : ';' | '\n'
+}
 void parse_none() {
 }
 
 void parse_error() {
+}
+
+void parse_keyword_BEGIN() {
 }

@@ -30,7 +30,7 @@ class Greeter
   end
   def say_hi
     # string interpolation not supported yet
-    puts "Hi " + @name +"!"
+    puts "Hi " + @name + "!"
   end
   def say_bye
     # string interpolation not supported yet
