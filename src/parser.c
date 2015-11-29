@@ -12,11 +12,13 @@ void parse_terminal();
 void parse_literal();
 void parse_primary();
 void parse_arg();
-void parse_arg_expression();
+bool parse_arg_expression();
 void parse_command();
 void parse_lhs();
 void parse_varname();
 void print_token();
+void parse_string();
+void parse_symbol();
 
 void crb_init_parser(char* code) {
   crb_init_lexer(code);
@@ -206,12 +208,13 @@ void parse_arg() {
       break;
     default:
       // to remove left-recursion of ARG op ARG statements.
-      parse_arg_expression();
-      parse_primary();
+      if (!parse_arg_expression()) {
+        parse_primary();
+      }
   }
 }
 
-void parse_arg_expression() {
+bool parse_arg_expression() {
   /*
     | ARG `..' ARG
     | ARG `...' ARG
@@ -252,8 +255,9 @@ void parse_arg_expression() {
       parse_arg();
       break;
     default:
-      break;
+      return false;
   }
+  return true;
 }
 
 void parse_primary() {
@@ -486,10 +490,23 @@ void parse_literal() {
                   | REGEXP
   */
   Token* token = crb_curr_token();
-  if (token->type == tINTEGER) {
-    crb_next_token();
-    print_token(token);
+  switch (token->type) {
+    case tINTEGER:
+      crb_next_token();
+      print_token(token);
+      break;
+    default:
+      break;
   }
+}
+
+void parse_symbol() {
+    /*
+      SYMBOL: `:'FNAME
+        | `:'`@'identifier
+        | `:'`@@'identifier
+        | `:'GLOBAL
+    */
 }
 
 void print_token(Token* token) {
