@@ -12,6 +12,7 @@ void parse_terminal();
 void parse_literal();
 void parse_primary();
 void parse_arg();
+void parse_arg_expression();
 void parse_command();
 void parse_lhs();
 void parse_varname();
@@ -196,15 +197,62 @@ void parse_arg() {
       crb_next_token();
       parse_arg();
       break;
-    // FIME: this should be ARG '+' ARG
+    case tKEYWORD:
+      if (strcmp(token->value, "defined?") == 0) {
+        puts("- Found keyword 'defined?'");
+        crb_next_token();
+        parse_arg();
+      }
+      break;
+    default:
+      // to remove left-recursion of ARG op ARG statements.
+      parse_arg_expression();
+      parse_primary();
+  }
+}
+
+void parse_arg_expression() {
+  /*
+    | ARG `..' ARG
+    | ARG `...' ARG
+    | ARG `+' ARG
+    | ARG `-' ARG
+    | ARG `*' ARG
+    | ARG `/' ARG
+    | ARG `%' ARG
+    | ARG `**' ARG
+    | ARG `|' ARG
+    | ARG `^' ARG
+    | ARG `&' ARG
+    | ARG `<=>' ARG
+    | ARG `>' ARG
+    | ARG `>=' ARG
+    | ARG `<' ARG
+    | ARG `<=' ARG
+    | ARG `==' ARG
+    | ARG `===' ARG
+    | ARG `!=' ARG
+    | ARG `=~' ARG
+    | ARG `!~' ARG
+    | ARG `<<' ARG
+    | ARG `>>' ARG
+    | ARG `&&' ARG
+    | ARG `||' ARG
+  */
+  Token* token = crb_curr_token();
+  switch (token->type) {
     case tPLUS:
       puts("- Found '+'");
       crb_next_token();
       parse_arg();
       break;
+    case tMINUS:
+      puts("- Found '-'");
+      crb_next_token();
+      parse_arg();
+      break;
     default:
-      // parse_lhs(token);
-      parse_primary();
+      break;
   }
 }
 
