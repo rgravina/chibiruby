@@ -42,7 +42,8 @@ end
 Currently does not support:
 
 * Code embedded in strings (`"Hello #{name}"`), or backticks, heredocs.
-* Numbers other than Integers or Float (only of the form X.Y for now)
+* Floats not of the form X.Y
+* Regular expressions
 * ... many other features ...
 
 ## Testing

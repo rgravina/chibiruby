@@ -5,14 +5,10 @@
 #include "parser.h"
 
 void parse_program();
-void parse_top_compstmt();
-void parse_top_stmts();
-void parse_top_stmt();
-void parse_opt_terms();
-void parse_terms();
-void parse_none();
-void parse_error();
-void parse_keyword_BEGIN();
+void parse_compound_statement();
+void parse_statement();
+void parse_expression();
+void parse_terminal();
 
 void crb_init_parser(char* code) {
   crb_init_lexer(code);
@@ -36,68 +32,328 @@ void crb_free_parser() {
 /*
  * Grammar parsing functions
  */
+
+ /*
+  * Program structure
+  */
 void parse_program() {
-  // program : top_compstmt
-  parse_top_compstmt();
+  // PROGRAM: COMPSTMT
+  parse_compound_statement();
 }
 
-void parse_top_compstmt() {
-  // top_compstmt : top_stmts opt_terms
+void parse_compound_statement() {
+  // COMPSTMT: STMT (TERM EXPR)* [TERM]
+}
 
+void parse_statement() {
   /*
-   * A compound-statement is evaluated as follows:
-   *
-   * If the statement-list of the compound-statement is omitted, the value of
-   * the compound-statement is nil.
-   *
-   * if the statement-list exists, the value of the compound-statement is the
-   * value of the last statement of the statement-list.
-   *
-   */
-  parse_top_stmts();
-  parse_opt_terms();
+  STMT: CALL do [`|' [BLOCK_VAR] `|'] COMPSTMT end
+      | LHS `=' COMMAND [do [`|' [BLOCK_VAR] `|'] COMPSTMT end]
+      | alias FNAME FNAME
+      | undef (FNAME | SYMBOL)+
+      | STMT if EXPR
+      | STMT while EXPR
+      | STMT unless EXPR
+      | STMT until EXPR
+      | STMT rescue STMT
+      | `BEGIN' `{' COMPSTMT `}'
+      | `END' `{' COMPSTMT `}'
+      | EXPR
+  */
 }
 
-void parse_top_stmts() {
+void parse_expression() {
+    /*
+    EXPR: MLHS `=' MRHS
+        | return CALL_ARGS
+        | EXPR and EXPR
+        | EXPR or EXPR
+        | not EXPR
+        | COMMAND
+        | `!' COMMAND
+        | ARG
+    */
+}
+
+void parse_terminal() {
+    /*
+    TERM: `;'
+        | `\n'
+    */
+}
+
+void parse_call() {
   /*
-  top_stmts : none
-  		| top_stmt
-  		| top_stmts terms top_stmt
-  		| error top_stmt
+  CALL: FUNCTION
+      | COMMAND
   */
-  // parse_none();
-  // parse_top_stmt();
-  // parse_top_stmts();
-  // parse_terms();
-  // parse_top_stmt();
-  // parse_error();
-  // parse_top_stmt();
 }
 
-void parse_top_stmt() {
-  /* top_stmt : stmt
-  		| keyword_BEGIN '{' top_compstmt '}'
+void parse_command() {
+    /*
+    COMMAND: OPERATION CALL_ARGS
+          | PRIMARY `.' FNAME CALL_ARGS
+          | PRIMARY `::' FNAME CALL_ARGS
+          | super CALL_ARGS
+          | yield CALL_ARGS
+    */
+}
+
+void parse_function() {
+    /*
+    FUNCTION: OPERATION [`(' [CALL_ARGS] `)']
+      | PRIMARY `.' FNAME `(' [CALL_ARGS] `)'
+      | PRIMARY `::' FNAME `(' [CALL_ARGS] `)'
+      | PRIMARY `.' FNAME
+      | PRIMARY `::' FNAME
+      | super [`(' [CALL_ARGS] `)']
+    */
+}
+
+void parse_arg() {
+    /*
+    ARG: LHS `=' ARG
+      | LHS OP_ASGN ARG
+      | ARG `..' ARG
+      | ARG `...' ARG
+      | ARG `+' ARG
+      | ARG `-' ARG
+      | ARG `*' ARG
+      | ARG `/' ARG
+      | ARG `%' ARG
+      | ARG `**' ARG
+      | `+' ARG
+      | `-' ARG
+      | ARG `|' ARG
+      | ARG `^' ARG
+      | ARG `&' ARG
+      | ARG `<=>' ARG
+      | ARG `>' ARG
+      | ARG `>=' ARG
+      | ARG `<' ARG
+      | ARG `<=' ARG
+      | ARG `==' ARG
+      | ARG `===' ARG
+      | ARG `!=' ARG
+      | ARG `=~' ARG
+      | ARG `!~' ARG
+      | `!' ARG
+      | `~' ARG
+      | ARG `<<' ARG
+      | ARG `>>' ARG
+      | ARG `&&' ARG
+      | ARG `||' ARG
+      | defined? ARG
+      | PRIMARY
   */
-  parse_keyword_BEGIN();
-  parse_top_compstmt();
 }
 
-void parse_opt_terms() {
-  // opt_terms: | terms
+void parse_primary() {
+  /*
+  PRIMARY: `(' COMPSTMT `)'
+    | LITERAL
+    | VARIABLE
+    | PRIMARY `::' identifier
+    | `::' identifier
+    | PRIMARY `[' [ARGS] `]'
+    | `[' [ARGS [`,']] `]'
+    | `{' [(ARGS|ASSOCS) [`,']] `}'
+    | return [`(' [CALL_ARGS] `)']
+    | yield [`(' [CALL_ARGS] `)']
+    | defined? `(' ARG `)'
+    | FUNCTION
+    | FUNCTION `{' [`|' [BLOCK_VAR] `|'] COMPSTMT `}'
+    | if EXPR THEN
+      COMPSTMT
+      (elsif EXPR THEN COMPSTMT)*
+      [else COMPSTMT]
+      end
+    | unless EXPR THEN
+      COMPSTMT
+      [else COMPSTMT]
+      end
+    | while EXPR DO COMPSTMT end
+    | until EXPR DO COMPSTMT end
+    | case [EXPR]
+      (when WHEN_ARGS THEN COMPSTMT)+
+      [else COMPSTMT]
+      end
+    | for BLOCK_VAR in EXPR DO
+      COMPSTMT
+      end
+    | begin
+      COMPSTMT
+      [rescue [ARGS] [`=>' LHS] THEN COMPSTMT]+
+      [else COMPSTMT]
+      [ensure COMPSTMT]
+      end
+    | class identifier [`<' identifier]
+      COMPSTMT
+      end
+    | module identifier
+      COMPSTMT
+      end
+    | def FNAME ARGDECL
+      COMPSTMT
+      [rescue [ARGS] [`=>' LHS] THEN COMPSTMT]+
+      [else COMPSTMT]
+      [ensure COMPSTMT]
+      end
+    | def SINGLETON (`.'|`::') FNAME ARGDECL
+      COMPSTMT
+      end
+  */
 }
 
-void parse_terms() {
-  // terms: term | terms ';'
+void parse_when_args() {
+    /*
+    WHEN_ARGS: ARGS [`,' `*' ARG]
+      | `*' ARG
+    */
+}
+
+void parse_then() {
+  /*
+  THEN: TERM
+      | then
+      | TERM then
+  */
+}
+
+void parse_do() {
+  /*
+  DO: TERM
+    | do
+    | TERM do
+  */
+}
+
+void parse_block_var() {
+  /*
+  BLOCK_VAR: LHS
+          | MLHS
+  */
+}
+
+void parse_mlhs() {
+  /*
+  MLHS: MLHS_ITEM `,' MLHS_ITEM [(`,' MLHS_ITEM)*] [`,' `*' [LHS]]
+      | MLHS_ITEM `,' `*' [LHS]
+      | MLHS_ITEM [(`,' MLHS_ITEM)*] `,'
+      | `*' [LHS]
+      | `(' MLHS `)'
+  */
+}
+
+void parse_mlhs_item() {
+  /*
+  MLHS_ITEM: LHS
+          | '(' MLHS ')'
+  */
+}
+
+void parse_lhs() {
+  /*
+  LHS: VARNAME
+      | PRIMARY `[' [ARGS] `]'
+      | PRIMARY `.' identifier
+  */
+}
+
+void parse_mrhs() {
+  /*
+  MRHS: ARGS [`,' `*' ARG]
+      | `*' ARG
+  */
+}
+
+void parse_call_args() {
+  /*
+  CALL_ARGS: ARGS
+      | ARGS [`,' ASSOCS] [`,' `*' ARG] [`,' `&' ARG]
+      | ASSOCS [`,' `*' ARG] [`,' `&' ARG]
+      | `*' ARG [`,' `&' ARG]
+      | `&' ARG
+      | COMMAND
+  */
+}
+
+void parse_args() {
+  /*
+  ARGS: ARG (`,' ARG)*
+  */
+}
+
+void parse_argdecl() {
+  /*
+  ARGDECL: `(' ARGLIST `)'
+        | ARGLIST TERM
+  */
+}
+
+void parse_arglist() {
+  /*
+  ARGLIST: identifier(`,'identifier)*[`,'`*'[identifier]][`,'`&'identifier]
+        | `*'identifier[`,'`&'identifier]
+        | [`&'identifier]
+  */
+}
+
+void parse_singleton() {
+  /*
+  SINGLETON       : VARNAME
+                  | self
+                  | nil
+                  | true
+                  | false
+                  | `(' EXPR `)'
+  */
+}
+
+void parse_assocs() {
+  /*
+  ASSOCS          : ASSOC (`,' ASSOC)*
+  */
+}
+
+void parse_assoc() {
+  /*
+  ASSOC           : ARG `=>' ARG
+  */
+}
+
+void parse_variable() {
+  /*
+  VARIABLE        : VARNAME
+                  | self
+                  | nil
+                  | true
+                  | false
+                  | __FILE__
+                  | __LINE__
+  */
+}
+
+void parse_literal() {
+  /*
+  LITERAL         : numeric
+                  | SYMBOL
+                  | STRING
+                  | HERE_DOC
+                  | WORDS
+                  | REGEXP
+  */
+}
+
+void parse_string() {
+  /*
+  STRING          : LITERAL_STRING+
+  */
 }
 
 void parse_term() {
-    // term : ';' | '\n'
-}
-void parse_none() {
-}
-
-void parse_error() {
-}
-
-void parse_keyword_BEGIN() {
+  /*
+  TERM            : `;'
+                  | `\n'
+  */
 }
