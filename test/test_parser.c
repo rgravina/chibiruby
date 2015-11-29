@@ -12,7 +12,7 @@ void test_parser() {
 
 void test_parser_literal() {
   // tests statements with newlines
-  char* code = "1\n!2\n3+1\n+4";
+  char* code = "1\n!2\n3+1\n+4\n5-6";
   crb_init_parser(code);
   parser->debug=true;
   crb_parser_parse();

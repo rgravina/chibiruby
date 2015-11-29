@@ -225,6 +225,7 @@ void process_short_token() {
           add_token_here(tPLUS);
         }
       } else if (next_char == '=') {
+        lexer->state = EXPR_BEG;
         advance_token_and_lexer();
         add_token_here(tOP_ASSIGN);
       } else if (is_expression_beginning()) {
@@ -233,6 +234,33 @@ void process_short_token() {
       } else {
         lexer->state = EXPR_BEG;
         add_token_here(tPLUS);
+      }
+      break;
+    case '-':
+      next_char = peek();
+      if (is_after_operator()) {
+        lexer->state = EXPR_ARG;
+        if (next_char == '@') {
+          advance_token_and_lexer();
+          add_token_here(tUMINUS);
+        } else {
+          add_token_here(tMINUS);
+        }
+      } else if (next_char == '=') {
+        lexer->state = EXPR_ARG;
+        advance_token_and_lexer();
+        add_token_here(tOP_ASSIGN);
+      } else if (next_char == '>') {
+        // Ruby's parse.y uses EXPR_ENDFN here
+        lexer->state = EXPR_END;
+        advance_token_and_lexer();
+        add_token_here(tLAMBDA);
+      } else if (is_expression_beginning()) {
+        lexer->state = EXPR_BEG;
+        add_token_here(tUMINUS);
+      } else {
+        lexer->state = EXPR_BEG;
+        add_token_here(tMINUS);
       }
       break;
     case ';':
@@ -403,7 +431,7 @@ static const char *TypeString[] = {
   "String End", "Left Brace", "Right Brace", "Symbol Beginning", "Colon 2",
   "BAR", "NOT", "EQUAL", "NOT_EQUAL", "NOT_MATCH", "RIGHT_SHIFT", "OP_ASSIGN",
   "GREATER_THAN", "GREATER_THAN_OR_EQUAL", "COLON3", "tINSTANCE_VAR", "tCLASS_VAR", "tIGNORED_tNEWLINE",
-  "CONSTANT", "tSEMICOLON", "tPLUS", "tUPLUS", "tMINUS", "tUMINUS"
+  "CONSTANT", "tSEMICOLON", "tPLUS", "tUPLUS", "tMINUS", "tUMINUS", "tLAMBDA"
 };
 static void print_token(Token* token) {
   printf("-- token %s '%s' at (%lu, %lu)\n", TypeString[token->type], token->value, token->lineno, token->start);
