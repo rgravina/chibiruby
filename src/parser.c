@@ -13,6 +13,8 @@ void parse_literal(Token* token);
 void parse_primary(Token* token);
 void parse_arg(Token* token);
 void parse_command(Token* token);
+void parse_lhs(Token* token);
+void parse_varname(Token* token);
 
 void crb_init_parser(char* code) {
   crb_init_lexer(code);
@@ -184,6 +186,7 @@ void parse_arg(Token* token) {
       parse_arg(crb_next_token());
       break;
     default:
+      parse_lhs(token);
       parse_primary(token);
   }
 }
@@ -293,12 +296,41 @@ void parse_mlhs_item() {
   */
 }
 
-void parse_lhs() {
+void parse_lhs(Token* token) {
   /*
   LHS: VARNAME
       | PRIMARY `[' [ARGS] `]'
       | PRIMARY `.' identifier
   */
+  parse_varname(token);
+}
+
+void parse_varname(Token* token) {
+  /*
+  VARNAME: GLOBAL
+    | `@'identifier
+    | `@@'identifier
+    | identifier
+  */
+  switch (token->type) {
+    case tIDENTIFIER:
+      if (parser->debug == true) {
+        printf("- Found identifier: %s\n", token->value);
+      }
+      break;
+    case tINSTANCE_VAR:
+      if (parser->debug == true) {
+        printf("- Found instance var: %s\n", token->value);
+      }
+      break;
+    case tCLASS_VAR:
+      if (parser->debug == true) {
+        printf("- Found class var: %s\n", token->value);
+      }
+      break;
+    default:
+      break;
+  }
 }
 
 void parse_mrhs() {
