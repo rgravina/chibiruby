@@ -10,6 +10,13 @@ void test_parser() {
   crb_free_parser();
 }
 
+void test_parser_literal() {
+  char* code = "10";
+  crb_init_parser(code);
+  crb_parser_parse();
+  crb_free_parser();
+}
+
 void crb_run_parser_tests() {
-  test_parser();
+  test_parser_literal();
 }

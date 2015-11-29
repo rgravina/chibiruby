@@ -3,6 +3,7 @@
 
 typedef struct parser {
   Lexer* lexer;
+  bool debug;
 } Parser;
 
 // the primary lexer struct

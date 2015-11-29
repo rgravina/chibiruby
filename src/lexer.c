@@ -199,6 +199,9 @@ void process_short_token() {
     case '#':
       //TODO: comments
       break;
+    case ';':
+      add_token_here(tSEMICOLON);
+      break;
     case '.':
       add_token_here(tPERIOD);
       break;
@@ -362,7 +365,7 @@ static const char *TypeString[] = {
   "String End", "Left Brace", "Right Brace", "Symbol Beginning", "Colon 2",
   "BAR", "NOT", "EQUAL", "NOT_EQUAL", "NOT_MATCH", "RIGHT_SHIFT", "OP_ASSIGN",
   "GREATER_THAN", "GREATER_THAN_OR_EQUAL", "COLON3", "tINSTANCE_VAR", "tCLASS_VAR", "tIGNORED_tNEWLINE",
-  "CONSTANT"
+  "CONSTANT", "tSEMICOLON"
 };
 void print_token(Token* token) {
   printf("-- token %s '%s' at (%lu, %lu)\n", TypeString[token->type], token->value, token->lineno, token->start);

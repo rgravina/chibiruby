@@ -6,14 +6,18 @@
 
 void parse_program();
 void parse_compound_statement();
-void parse_statement();
-void parse_expression();
-void parse_terminal();
+bool parse_statement();
+bool parse_expression();
+bool parse_terminal();
+bool parse_literal();
+bool parse_primary();
+bool parse_arg();
 
 void crb_init_parser(char* code) {
   crb_init_lexer(code);
   parser = (Parser*)malloc(sizeof(Parser));
   parser->lexer = lexer;
+  parser->debug = false;
 }
 
 /*
@@ -43,9 +47,10 @@ void parse_program() {
 
 void parse_compound_statement() {
   // COMPSTMT: STMT (TERM EXPR)* [TERM]
+  parse_statement();
 }
 
-void parse_statement() {
+bool parse_statement() {
   /*
   STMT: CALL do [`|' [BLOCK_VAR] `|'] COMPSTMT end
       | LHS `=' COMMAND [do [`|' [BLOCK_VAR] `|'] COMPSTMT end]
@@ -60,9 +65,10 @@ void parse_statement() {
       | `END' `{' COMPSTMT `}'
       | EXPR
   */
+  return parse_expression();
 }
 
-void parse_expression() {
+bool parse_expression() {
     /*
     EXPR: MLHS `=' MRHS
         | return CALL_ARGS
@@ -73,13 +79,22 @@ void parse_expression() {
         | `!' COMMAND
         | ARG
     */
+    return parse_arg();
 }
 
-void parse_terminal() {
+bool parse_terminal() {
     /*
-    TERM: `;'
-        | `\n'
+      TERM: `;' | `\n'
     */
+    Token* token = crb_next_token();
+    if (token->type == tSEMICOLON || token->type == tNEWLINE) {
+      if (parser->debug == true) {
+        printf("- Found terminal: %s", token->value);
+      }
+      return true;
+    } else {
+      return false;
+    }
 }
 
 void parse_call() {
@@ -110,7 +125,7 @@ void parse_function() {
     */
 }
 
-void parse_arg() {
+bool parse_arg() {
     /*
     ARG: LHS `=' ARG
       | LHS OP_ASGN ARG
@@ -146,9 +161,10 @@ void parse_arg() {
       | defined? ARG
       | PRIMARY
   */
+  return parse_primary();
 }
 
-void parse_primary() {
+bool parse_primary() {
   /*
   PRIMARY: `(' COMPSTMT `)'
     | LITERAL
@@ -203,6 +219,7 @@ void parse_primary() {
       COMPSTMT
       end
   */
+  return parse_literal();
 }
 
 void parse_when_args() {
@@ -334,7 +351,7 @@ void parse_variable() {
   */
 }
 
-void parse_literal() {
+bool parse_literal() {
   /*
   LITERAL         : numeric
                   | SYMBOL
@@ -343,6 +360,15 @@ void parse_literal() {
                   | WORDS
                   | REGEXP
   */
+  Token* token = crb_next_token();
+  if (token->type == tINTEGER) {
+    if (parser->debug == true) {
+      printf("- Found integer literal: %s", token->value);
+    }
+    return true;
+  } else {
+    return false;
+  }
 }
 
 void parse_string() {
