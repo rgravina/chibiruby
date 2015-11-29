@@ -279,7 +279,21 @@ void process_short_token() {
       add_token_here(tSEMICOLON);
       break;
     case '.':
-      add_token_here(tPERIOD);
+      lexer->state = EXPR_BEG;
+      next_char = peek();
+      if (next_char == '.') {
+        advance_token_and_lexer();
+        next_char = peek();
+        if (next_char == '.') {
+          advance_token_and_lexer();
+          add_token_here(tDOT3);
+        } else {
+          add_token_here(tDOT2);
+        }
+      } else {
+        lexer->state = EXPR_DOT;
+        add_token_here(tPERIOD);        
+      }
       break;
     case '(':
       lexer->state = EXPR_BEG;

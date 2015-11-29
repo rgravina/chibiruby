@@ -249,6 +249,16 @@ bool parse_arg_expression() {
   */
   Token* token = crb_curr_token();
   switch (token->type) {
+    case tDOT2:
+      puts("- Found '..'");
+      crb_next_token();
+      parse_arg();
+      break;
+    case tDOT3:
+      puts("- Found '...'");
+      crb_next_token();
+      parse_arg();
+      break;
     case tPLUS:
       puts("- Found '+'");
       crb_next_token();
