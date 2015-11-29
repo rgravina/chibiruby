@@ -263,6 +263,18 @@ void process_short_token() {
         add_token_here(tMINUS);
       }
       break;
+    case '~':
+      next_char = peek();
+      if (is_after_operator()) {
+        if (next_char == '@') {
+          pushback();
+        }
+        lexer->state = EXPR_ARG;
+      } else {
+        lexer->state = EXPR_BEG;
+      }
+      add_token_here(tTILDE);
+      break;
     case ';':
       add_token_here(tSEMICOLON);
       break;
@@ -431,7 +443,7 @@ static const char *TypeString[] = {
   "String End", "Left Brace", "Right Brace", "Symbol Beginning", "Colon 2",
   "BAR", "NOT", "EQUAL", "NOT_EQUAL", "NOT_MATCH", "RIGHT_SHIFT", "OP_ASSIGN",
   "GREATER_THAN", "GREATER_THAN_OR_EQUAL", "COLON3", "tINSTANCE_VAR", "tCLASS_VAR", "tIGNORED_tNEWLINE",
-  "CONSTANT", "tSEMICOLON", "tPLUS", "tUPLUS", "tMINUS", "tUMINUS", "tLAMBDA"
+  "CONSTANT", "tSEMICOLON", "tPLUS", "tUPLUS", "tMINUS", "tUMINUS", "tLAMBDA", "tTILDE"
 };
 static void print_token(Token* token) {
   printf("-- token %s '%s' at (%lu, %lu)\n", TypeString[token->type], token->value, token->lineno, token->start);

@@ -206,6 +206,11 @@ void parse_arg() {
         parse_arg();
       }
       break;
+    case tTILDE:
+      puts("- Found '~'");
+      crb_next_token();
+      parse_arg();
+      break;
     default:
       // to remove left-recursion of ARG op ARG statements.
       if (!parse_arg_expression()) {
