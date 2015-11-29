@@ -199,6 +199,11 @@ void parse_arg() {
       crb_next_token();
       parse_arg();
       break;
+    case tUMINUS:
+      puts("- Found unary '-'");
+      crb_next_token();
+      parse_arg();
+      break;
     case tKEYWORD:
       if (strcmp(token->value, "defined?") == 0) {
         puts("- Found keyword 'defined?'");
