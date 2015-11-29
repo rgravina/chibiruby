@@ -49,6 +49,19 @@ Token* crb_next_token() {
   return curr_token;
 }
 
+Token* crb_previous_token() {
+  if (curr_token == NULL) {
+    return NULL;
+  } else {
+    curr_token = curr_token->previous;
+  }
+  return curr_token;
+}
+
+Token* crb_curr_token() {
+  return curr_token;
+}
+
 void crb_free_lexer() {
   Token* token = lexer->head;
   while (token != NULL) {
@@ -330,6 +343,7 @@ void add_token() {
     lexer->head = lexer->tail = token;
   } else {
     lexer->tail->next = token;
+    token->previous = lexer->tail->next;
     lexer->tail = token;
   }
   lexer->num_tokens++;
@@ -340,6 +354,7 @@ Token* new_token() {
   token->start = (lexer->curr_start_pos - lexer->newline_last_seen_pos);
   token->lineno = lexer->curr_lineno;
   token->next = NULL;
+  token->previous = NULL;
   int token_length = lexer->curr_end_pos - lexer->curr_start_pos;
   token->value = (char *)malloc(sizeof(char) * token_length+1);
   token->value[token_length] = 0;

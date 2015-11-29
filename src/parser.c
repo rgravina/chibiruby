@@ -5,13 +5,13 @@
 #include "parser.h"
 
 void parse_program();
-void parse_compound_statement();
-bool parse_statement();
-bool parse_expression();
-bool parse_terminal();
-bool parse_literal();
-bool parse_primary();
-bool parse_arg();
+void parse_compound_statement(Token* token);
+void parse_statement(Token* token);
+void parse_expression(Token* token);
+void parse_terminal(Token* token);
+void parse_literal(Token* token);
+void parse_primary(Token* token);
+void parse_arg(Token* token);
 
 void crb_init_parser(char* code) {
   crb_init_lexer(code);
@@ -42,15 +42,25 @@ void crb_free_parser() {
   */
 void parse_program() {
   // PROGRAM: COMPSTMT
-  parse_compound_statement();
+  Token* token = crb_next_token();
+  parse_compound_statement(token);
 }
 
-void parse_compound_statement() {
+void parse_compound_statement(Token* token) {
   // COMPSTMT: STMT (TERM EXPR)* [TERM]
-  parse_statement();
+  parse_statement(token);
+  Token* next_token = crb_next_token();
+  // could be nothing, a terminal or several terminal and expressions
+  while (next_token != NULL) {
+    parse_terminal(next_token);
+    next_token = crb_next_token();
+    if (next_token != NULL) {
+      parse_expression(next_token);
+    }
+  }
 }
 
-bool parse_statement() {
+void parse_statement(Token* token) {
   /*
   STMT: CALL do [`|' [BLOCK_VAR] `|'] COMPSTMT end
       | LHS `=' COMMAND [do [`|' [BLOCK_VAR] `|'] COMPSTMT end]
@@ -65,10 +75,10 @@ bool parse_statement() {
       | `END' `{' COMPSTMT `}'
       | EXPR
   */
-  return parse_expression();
+  parse_expression(token);
 }
 
-bool parse_expression() {
+void parse_expression(Token* token) {
     /*
     EXPR: MLHS `=' MRHS
         | return CALL_ARGS
@@ -79,21 +89,18 @@ bool parse_expression() {
         | `!' COMMAND
         | ARG
     */
-    return parse_arg();
+    parse_arg(token);
 }
 
-bool parse_terminal() {
+void parse_terminal(Token* token) {
     /*
       TERM: `;' | `\n'
     */
-    Token* token = crb_next_token();
     if (token->type == tSEMICOLON || token->type == tNEWLINE) {
       if (parser->debug == true) {
-        printf("- Found terminal: %s", token->value);
+        puts("- Found terminal");
       }
-      return true;
     } else {
-      return false;
     }
 }
 
@@ -125,7 +132,7 @@ void parse_function() {
     */
 }
 
-bool parse_arg() {
+void parse_arg(Token* token) {
     /*
     ARG: LHS `=' ARG
       | LHS OP_ASGN ARG
@@ -161,10 +168,10 @@ bool parse_arg() {
       | defined? ARG
       | PRIMARY
   */
-  return parse_primary();
+  parse_primary(token);
 }
 
-bool parse_primary() {
+void parse_primary(Token* token) {
   /*
   PRIMARY: `(' COMPSTMT `)'
     | LITERAL
@@ -219,7 +226,7 @@ bool parse_primary() {
       COMPSTMT
       end
   */
-  return parse_literal();
+  parse_literal(token);
 }
 
 void parse_when_args() {
@@ -351,7 +358,7 @@ void parse_variable() {
   */
 }
 
-bool parse_literal() {
+void parse_literal(Token* token) {
   /*
   LITERAL         : numeric
                   | SYMBOL
@@ -360,14 +367,11 @@ bool parse_literal() {
                   | WORDS
                   | REGEXP
   */
-  Token* token = crb_next_token();
   if (token->type == tINTEGER) {
     if (parser->debug == true) {
-      printf("- Found integer literal: %s", token->value);
+      printf("- Found integer literal: %s\n", token->value);
     }
-    return true;
   } else {
-    return false;
   }
 }
 

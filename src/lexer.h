@@ -25,6 +25,7 @@ typedef struct token {
   unsigned long lineno;
   unsigned long start;
   struct token* next;
+  struct token* previous;
 } Token;
 
 typedef struct lexer {
@@ -52,3 +53,5 @@ void crb_init_lexer(char* code);
 void crb_free_lexer();
 void crb_lexer_lex();
 Token* crb_next_token();
+Token* crb_previous_token();
+Token* crb_curr_token();

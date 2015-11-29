@@ -11,8 +11,10 @@ void test_parser() {
 }
 
 void test_parser_literal() {
-  char* code = "10";
+  // tests statements with newlines
+  char* code = "1\n2\n3\n4";
   crb_init_parser(code);
+  parser->debug=true;
   crb_parser_parse();
   crb_free_parser();
 }
