@@ -162,11 +162,11 @@ void test_lexer_greater_than() {
   ok(lexer->num_tokens == 16);
   ok(lexer->in_token == false);
   check_token(1, 0, tINTEGER, "1");
-  check_token(1, 1, tGREATER_THAN, ">");
+  check_token(1, 1, tGT, ">");
   check_token(1, 2, tINTEGER, "2");
   check_token(1, 3, tNEWLINE, "\n");
   check_token(2, 0, tINTEGER, "1");
-  check_token(2, 1, tRIGHT_SHIFT, ">>");
+  check_token(2, 1, tRSHIFT, ">>");
   check_token(2, 3, tINTEGER, "2");
   check_token(2, 4, tNEWLINE, "\n");
   check_token(3, 0, tINTEGER, "1");
@@ -174,7 +174,7 @@ void test_lexer_greater_than() {
   check_token(3, 4, tINTEGER, "2");
   check_token(3, 5, tNEWLINE, "\n");
   check_token(4, 0, tINTEGER, "1");
-  check_token(4, 1, tGREATER_THAN_OR_EQUAL, ">=");
+  check_token(4, 1, tGEQ, ">=");
   check_token(4, 3, tINTEGER, "2");
   check_token(4, 4, tNEWLINE, "\n");
   crb_free_lexer();

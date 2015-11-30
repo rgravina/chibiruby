@@ -366,6 +366,24 @@ bool parse_arg_dash() {
       parse_arg();
       parse_arg_dash();
       break;
+    case tGT:
+      print_message("- Found '>'");
+      crb_next_token();
+      parse_arg();
+      parse_arg_dash();
+      break;
+    case tGEQ:
+      print_message("- Found '=>'");
+      crb_next_token();
+      parse_arg();
+      parse_arg_dash();
+      break;
+    case tRSHIFT:
+      print_message("- Found '>>'");
+      crb_next_token();
+      parse_arg();
+      parse_arg_dash();
+      break;
     default:
       // empty production is OK
       break;

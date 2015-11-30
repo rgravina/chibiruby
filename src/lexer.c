@@ -449,7 +449,7 @@ void process_short_token() {
       next_char = peek();
       if (next_char == '=') {
         advance_token_and_lexer();
-        add_token_here(tGREATER_THAN_OR_EQUAL);
+        add_token_here(tGEQ);
       } else if (next_char == '>') {
         advance_token_and_lexer();
         next_char = peek();
@@ -457,10 +457,10 @@ void process_short_token() {
           advance_token_and_lexer();
           add_token_here(tOP_ASSIGN);
         } else {
-          add_token_here(tRIGHT_SHIFT);
+          add_token_here(tRSHIFT);
         }
       } else {
-        add_token_here(tGREATER_THAN);
+        add_token_here(tGT);
       }
       break;
     case '<':
