@@ -12,7 +12,7 @@ void parse_terminal();
 bool parse_literal();
 bool parse_primary();
 void parse_arg();
-bool parse_arg_expression();
+bool parse_arg_dash();
 void parse_command();
 void parse_lhs();
 void parse_varname();
@@ -247,12 +247,12 @@ void parse_arg() {
       parse_arg();
       break;
     default:
-      // parse_arg_expression created to remove left-recursion of ARG op ARG statements.
-      parse_arg_expression() || parse_primary();
+      // parse_arg_dash created to remove left-recursion of ARG op ARG statements.
+      parse_primary() && parse_arg_dash();
   }
 }
 
-bool parse_arg_expression() {
+bool parse_arg_dash() {
   /*
     | ARG `..' ARG
     | ARG `...' ARG
@@ -286,39 +286,47 @@ bool parse_arg_expression() {
       puts("- Found '..'");
       crb_next_token();
       parse_arg();
+      parse_arg_dash();
       break;
     case tDOT3:
       puts("- Found '...'");
       crb_next_token();
       parse_arg();
+      parse_arg_dash();
       break;
     case tPLUS:
       puts("- Found '+'");
       crb_next_token();
       parse_arg();
+      parse_arg_dash();
       break;
     case tMINUS:
       puts("- Found '-'");
       crb_next_token();
       parse_arg();
+      parse_arg_dash();
       break;
     case tMULTIPLY:
       puts("- Found '*'");
       crb_next_token();
       parse_arg();
+      parse_arg_dash();
       break;
     case tDIVIDE:
       puts("- Found '/'");
       crb_next_token();
       parse_arg();
+      parse_arg_dash();
       break;
     case tPERCENT:
       puts("- Found '%'");
       crb_next_token();
       parse_arg();
+      parse_arg_dash();
       break;
     default:
-      return false;
+      // empty production OK
+      break;
   }
   return true;
 }
