@@ -342,6 +342,30 @@ bool parse_arg_dash() {
       parse_arg();
       parse_arg_dash();
       break;
+    case tLT:
+      print_message("- Found '<'");
+      crb_next_token();
+      parse_arg();
+      parse_arg_dash();
+      break;
+    case tLEQ:
+      print_message("- Found '<='");
+      crb_next_token();
+      parse_arg();
+      parse_arg_dash();
+      break;
+    case tLSHIFT:
+      print_message("- Found '<<'");
+      crb_next_token();
+      parse_arg();
+      parse_arg_dash();
+      break;
+    case tCMP:
+      print_message("- Found '<=>'");
+      crb_next_token();
+      parse_arg();
+      parse_arg_dash();
+      break;
     default:
       // empty production is OK
       break;

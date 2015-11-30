@@ -239,7 +239,7 @@ void test_lexer_expr_end() {
 }
 
 void test_lexer_expressions() {
-  char* code = "1+2\n+1";
+  char* code = "1+2\n+1\n1<2\n1<<2\n1<=2\n1<=>2";
   crb_init_lexer(code);
   crb_lexer_lex();
   check_token(1, 0, tINTEGER, "1");
@@ -248,6 +248,22 @@ void test_lexer_expressions() {
   check_token(1, 3, tNEWLINE, "\n");
   check_token(2, 0, tUPLUS, "+");
   check_token(2, 1, tINTEGER, "1");
+  check_token(2, 2, tNEWLINE, "\n");
+  check_token(3, 0, tINTEGER, "1");
+  check_token(3, 1, tLT, "<");
+  check_token(3, 2, tINTEGER, "2");
+  check_token(3, 3, tNEWLINE, "\n");
+  check_token(4, 0, tINTEGER, "1");
+  check_token(4, 1, tLSHIFT, "<<");
+  check_token(4, 3, tINTEGER, "2");
+  check_token(4, 4, tNEWLINE, "\n");
+  check_token(5, 0, tINTEGER, "1");
+  check_token(5, 1, tLEQ, "<=");
+  check_token(5, 3, tINTEGER, "2");
+  check_token(5, 4, tNEWLINE, "\n");
+  check_token(6, 0, tINTEGER, "1");
+  check_token(6, 1, tCMP, "<=>");
+  check_token(6, 4, tINTEGER, "2");
   crb_free_lexer();
 }
 

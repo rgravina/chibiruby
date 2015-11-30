@@ -18,7 +18,7 @@ void test_parser_simple_expressions() {
 }
 
 void test_parser_more_expressions() {
-  char* code = "1&&2||3\n1..2+3";
+  char* code = "1&&2||3\n1..2+3\n1||2&&3<4<=5--6";
   crb_init_parser(code);
   parser->debug=true;
   crb_parser_parse();
