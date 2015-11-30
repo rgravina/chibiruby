@@ -255,8 +255,7 @@ bool parse_arg_dash() {
   */
   Token* token = crb_curr_token();
   if (token == NULL) {
-    // empty production is OK
-    return true;
+    return false;
   }
   switch (token->type) {
     case tDOT2:
@@ -344,7 +343,7 @@ bool parse_arg_dash() {
       parse_arg_dash();
       break;
     default:
-      return false;
+      // empty production is OK
       break;
   }
   return true;
