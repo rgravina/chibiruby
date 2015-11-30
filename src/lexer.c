@@ -393,6 +393,40 @@ void process_short_token() {
         add_token_here(tNOT);
       }
       break;
+    case '^':
+      next_char = peek();
+      if (next_char == '=') {
+        advance_token_and_lexer();
+        lexer->state = EXPR_BEG;
+        add_token_here(tOP_ASSIGN);
+      } else {
+        lexer->state = is_after_operator() ? EXPR_ARG : EXPR_BEG;
+        add_token_here(tCARET);
+      }
+      break;
+    case '&':
+      next_char = peek();
+      if (next_char == '&') {
+        advance_token_and_lexer();
+        lexer->state = EXPR_BEG;
+        if (next_char == '=') {
+          add_token_here(tOP_ASSIGN);
+        } else {
+          add_token_here(tAND_OP);
+        }
+      } else if (next_char == '=') {
+        advance_token_and_lexer();
+        add_token_here(tOP_ASSIGN);
+      } else if (next_char == '.') {
+        lexer->state = EXPR_DOT;
+        add_token_here(tAND_DOT);
+      } else if (is_expression_beginning()) {
+        add_token_here(tAMPER);
+      } else {
+        //FIXME: what is the difference between tAMPER and '&'?
+        add_token_here(tAMPER);
+      }
+      break;
     case '>':
       next_char = peek();
       if (next_char == '=') {
@@ -491,7 +525,7 @@ static const char *TypeString[] = {
   "BAR", "NOT", "EQUAL", "NOT_EQUAL", "NOT_MATCH", "RIGHT_SHIFT", "OP_ASSIGN",
   "GREATER_THAN", "GREATER_THAN_OR_EQUAL", "COLON3", "tINSTANCE_VAR", "tCLASS_VAR", "tIGNORED_tNEWLINE",
   "CONSTANT", "tSEMICOLON", "tPLUS", "tUPLUS", "tMINUS", "tUMINUS", "tLAMBDA", "tTILDE", "tMULTIPLY",
-  "tDIVIDE", "tPOW", "tREGEXP_BEG", "tPERCENT"
+  "tDIVIDE", "tPOW", "tREGEXP_BEG", "tPERCENT", "tCARET", "tAMPER", "tAND_OP", "tAND_DOT"
 };
 static void print_token(Token* token) {
   printf("-- token %s '%s' at (%lu, %lu)\n", TypeString[token->type], token->value, token->lineno, token->start);

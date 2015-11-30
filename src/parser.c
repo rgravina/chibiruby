@@ -216,6 +216,36 @@ void parse_arg() {
       crb_next_token();
       parse_arg();
       break;
+    case tPOW:
+      puts("- Found '**'");
+      crb_next_token();
+      parse_arg();
+      break;
+    case tBAR:
+      puts("- Found '|'");
+      crb_next_token();
+      parse_arg();
+      break;
+    case tCARET:
+      puts("- Found '^'");
+      crb_next_token();
+      parse_arg();
+      break;
+    case tAMPER:
+      puts("- Found '&'");
+      crb_next_token();
+      parse_arg();
+      break;
+    case tAND_OP:
+      puts("- Found '&&'");
+      crb_next_token();
+      parse_arg();
+      break;
+    case tAND_DOT:
+      puts("- Found '&.'");
+      crb_next_token();
+      parse_arg();
+      break;
     default:
       // parse_arg_expression created to remove left-recursion of ARG op ARG statements.
       parse_arg_expression() || parse_primary();
