@@ -626,6 +626,12 @@ void parse_symbol() {
     */
 }
 
+void parse_string() {
+  /*
+  STRING          : LITERAL_STRING+
+  */
+}
+
 void print_token(Token* token) {
   if (parser->debug == true) {
     printf("- Found: %s\n", token->value);
@@ -636,17 +642,4 @@ void print_message(char* string) {
   if (parser->debug == true) {
     puts(string);
   }
-}
-
-void parse_string() {
-  /*
-  STRING          : LITERAL_STRING+
-  */
-}
-
-void parse_term() {
-  /*
-  TERM            : `;'
-                  | `\n'
-  */
 }
