@@ -376,7 +376,25 @@ void process_short_token() {
       start_long_token(tSTRING_CONTENT);
       break;
     case '|':
-      add_token_here(tBAR);
+      next_char = peek();
+      if (next_char == '|') {
+        lexer->state = EXPR_BEG;
+        advance_token_and_lexer();
+        if (next_char == '=') {
+          advance_token_and_lexer();
+          lexer->state = EXPR_BEG;
+          add_token_here(tOP_ASSIGN);
+        } else {
+          add_token_here(tOROP);
+        }
+      } else if (next_char == '=') {
+        advance_token_and_lexer();
+        lexer->state = EXPR_BEG;
+        add_token_here(tOP_ASSIGN);
+      }
+      else {
+        add_token_here(tBAR);
+      }
       break;
     case '=':
       add_token_here(tEQUAL);
@@ -525,7 +543,7 @@ static const char *TypeString[] = {
   "BAR", "NOT", "EQUAL", "NOT_EQUAL", "NOT_MATCH", "RIGHT_SHIFT", "OP_ASSIGN",
   "GREATER_THAN", "GREATER_THAN_OR_EQUAL", "COLON3", "tINSTANCE_VAR", "tCLASS_VAR", "tIGNORED_tNEWLINE",
   "CONSTANT", "tSEMICOLON", "tPLUS", "tUPLUS", "tMINUS", "tUMINUS", "tLAMBDA", "tTILDE", "tMULTIPLY",
-  "tDIVIDE", "tPOW", "tREGEXP_BEG", "tPERCENT", "tCARET", "tAMPER", "tAND_OP", "tAND_DOT"
+  "tDIVIDE", "tPOW", "tREGEXP_BEG", "tPERCENT", "tCARET", "tAMPER", "tAND_OP", "tAND_DOT", "tOROP"
 };
 static void print_token(Token* token) {
   printf("-- token %s '%s' at (%lu, %lu)\n", TypeString[token->type], token->value, token->lineno, token->start);
