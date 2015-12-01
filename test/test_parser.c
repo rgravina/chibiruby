@@ -18,14 +18,22 @@ void test_parser_simple_expressions() {
 }
 
 void test_parser_more_expressions() {
-  char* code = "1&&2||3\n1..2+3\n1||2&&3<4<=5--6\n1>2&&2>=3>>4";
+  char* code = "1&&2||3\n1..2+3\n1||2&&3<4<=5--6\n1>2&&2>=3>>4\n5==6\n7===8\n9=~0";
+  crb_init_parser(code);
+  crb_parser_parse();
+  crb_free_parser();
+}
+
+void test_parser_lhs() {
+  char* code = "1=2";
   crb_init_parser(code);
   parser->debug=true;
-  crb_parser_parse();
+  //crb_parser_parse();
   crb_free_parser();
 }
 
 void crb_run_parser_tests() {
   test_parser_simple_expressions();
   test_parser_more_expressions();
+  test_parser_lhs();
 }

@@ -18,7 +18,7 @@ void test_lexer_method_block() {
   ok(lexer->num_tokens == 16);
   ok(lexer->in_token == false);
   check_token(1, 0, tINTEGER, "10");
-  check_token(1, 2, tPERIOD, ".");
+  check_token(1, 2, tDOT, ".");
   check_token(1, 3, tIDENTIFIER, "times");
   check_token(1, 8, tSPACE, " ");
   check_token(1, 9, tKEYWORD, "do");
@@ -44,7 +44,7 @@ void test_lexer_array() {
   ok(lexer->in_token == false);
   check_token(1, 0, tIDENTIFIER, "array");
   check_token(1, 5, tSPACE, " ");
-  check_token(1, 6, tEQUAL, "=");
+  check_token(1, 6, tASSIGN, "=");
   check_token(1, 7, tSPACE, " ");
   check_token(1, 8, tLBRACKET, "[");
   check_token(1, 9, tINTEGER, "1");
@@ -279,6 +279,40 @@ void test_lexer_mod() {
   crb_free_lexer();
 }
 
+void test_lexer_equals() {
+  char* code = "1=2\n1==2\n1===2\n1=~2\n1=>2\n1!=2\n3!~4";
+  crb_init_lexer(code);
+  crb_lexer_lex();
+  check_token(1, 0, tINTEGER, "1");
+  check_token(1, 1, tASSIGN, "=");
+  check_token(1, 2, tINTEGER, "2");
+  check_token(1, 3, tNEWLINE, "\n");
+  check_token(2, 0, tINTEGER, "1");
+  check_token(2, 1, tEQ, "==");
+  check_token(2, 3, tINTEGER, "2");
+  check_token(2, 4, tNEWLINE, "\n");
+  check_token(3, 0, tINTEGER, "1");
+  check_token(3, 1, tEQQ, "===");
+  check_token(3, 4, tINTEGER, "2");
+  check_token(3, 5, tNEWLINE, "\n");
+  check_token(4, 0, tINTEGER, "1");
+  check_token(4, 1, tMATCH, "=~");
+  check_token(4, 3, tINTEGER, "2");
+  check_token(4, 4, tNEWLINE, "\n");
+  check_token(5, 0, tINTEGER, "1");
+  check_token(5, 1, tASSOC, "=>");
+  check_token(5, 3, tINTEGER, "2");
+  check_token(5, 4, tNEWLINE, "\n");
+  check_token(6, 0, tINTEGER, "1");
+  check_token(6, 1, tNOT_EQUAL, "!=");
+  check_token(6, 3, tINTEGER, "2");
+  check_token(6, 4, tNEWLINE, "\n");
+  check_token(7, 0, tINTEGER, "3");
+  check_token(7, 1, tNOT_MATCH, "!~");
+  check_token(7, 3, tINTEGER, "4");
+  crb_free_lexer();
+}
+
 void crb_run_lexer_tests() {
   test_lexer_method_block();
   test_lexer_array();
@@ -297,4 +331,5 @@ void crb_run_lexer_tests() {
   test_lexer_expr_end();
   test_lexer_expressions();
   test_lexer_mod();
+  test_lexer_equals();
 }

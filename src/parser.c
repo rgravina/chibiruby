@@ -14,8 +14,8 @@ bool parse_primary();
 void parse_arg();
 bool parse_arg_dash();
 void parse_command();
-void parse_lhs();
-void parse_varname();
+bool parse_lhs();
+bool parse_varname();
 void parse_string();
 void parse_symbol();
 void print_token();
@@ -226,33 +226,6 @@ void parse_arg() {
 }
 
 bool parse_arg_dash() {
-  /*
-    | ARG `..' ARG
-    | ARG `...' ARG
-    | ARG `+' ARG
-    | ARG `-' ARG
-    | ARG `*' ARG
-    | ARG `/' ARG
-    | ARG `%' ARG
-    | ARG `**' ARG
-    | ARG `|' ARG
-    | ARG `^' ARG
-    | ARG `&' ARG
-    | ARG `<=>' ARG
-    | ARG `>' ARG
-    | ARG `>=' ARG
-    | ARG `<' ARG
-    | ARG `<=' ARG
-    | ARG `==' ARG
-    | ARG `===' ARG
-    | ARG `!=' ARG
-    | ARG `=~' ARG
-    | ARG `!~' ARG
-    | ARG `<<' ARG
-    | ARG `>>' ARG
-    | ARG `&&' ARG
-    | ARG `||' ARG
-  */
   Token* token = crb_curr_token();
   if (token == NULL) {
     return false;
@@ -373,13 +346,43 @@ bool parse_arg_dash() {
       parse_arg_dash();
       break;
     case tGEQ:
-      print_message("- Found '=>'");
+      print_message("- Found '>='");
       crb_next_token();
       parse_arg();
       parse_arg_dash();
       break;
     case tRSHIFT:
       print_message("- Found '>>'");
+      crb_next_token();
+      parse_arg();
+      parse_arg_dash();
+      break;
+    case tEQ:
+      print_message("- Found '=='");
+      crb_next_token();
+      parse_arg();
+      parse_arg_dash();
+      break;
+    case tEQQ:
+      print_message("- Found '==='");
+      crb_next_token();
+      parse_arg();
+      parse_arg_dash();
+      break;
+    case tMATCH:
+      print_message("- Found '=~'");
+      crb_next_token();
+      parse_arg();
+      parse_arg_dash();
+      break;
+    case tNOT_EQUAL:
+      print_message("- Found '!='");
+      crb_next_token();
+      parse_arg();
+      parse_arg_dash();
+      break;
+    case tNOT_MATCH:
+      print_message("- Found '!~'");
       crb_next_token();
       parse_arg();
       parse_arg_dash();
@@ -497,16 +500,39 @@ void parse_mlhs_item() {
   */
 }
 
-void parse_lhs() {
+bool parse_lhs() {
   /*
   LHS: VARNAME
       | PRIMARY `[' [ARGS] `]'
       | PRIMARY `.' identifier
   */
-  parse_varname();
+  if (!parse_varname()) {
+    parse_primary();    
+    Token* curr_token = crb_curr_token();
+    switch(curr_token->type) {
+      case tLBRACE:
+        print_message("- terminal: '['");
+        curr_token = crb_next_token();
+        break;
+      case tDOT:
+        print_message("- terminal: '.'");
+        curr_token = crb_next_token();
+        if (curr_token->type == tIDENTIFIER) {
+          if (parser->debug == true) {
+            printf("- Found identifier: %s\n", curr_token->value);
+          }
+          crb_next_token();
+        }
+        break;
+      default:
+        // error
+        return false;
+    }
+  }
+  return true;
 }
 
-void parse_varname() {
+bool parse_varname() {
   print_message("- non-terminal: varname");
   /*
   VARNAME: GLOBAL
@@ -535,8 +561,9 @@ void parse_varname() {
       }
       break;
     default:
-      break;
+      return false;
   }
+  return true;
 }
 
 void parse_mrhs() {

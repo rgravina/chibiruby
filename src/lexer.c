@@ -325,7 +325,7 @@ void process_short_token() {
         }
       } else {
         lexer->state = EXPR_DOT;
-        add_token_here(tPERIOD);
+        add_token_here(tDOT);
       }
       break;
     case '(':
@@ -397,7 +397,27 @@ void process_short_token() {
       }
       break;
     case '=':
-      add_token_here(tEQUAL);
+      // TODO: handle tEMBDOC
+      lexer->state = is_after_operator() ? EXPR_ARG : EXPR_BEG;
+      next_char = peek();
+      if (next_char == '=') {
+        advance_token_and_lexer();
+        next_char = peek();
+        if (next_char == '=') {
+          advance_token_and_lexer();
+          add_token_here(tEQQ);
+        } else {
+          add_token_here(tEQ);          
+        }
+      } else if (next_char == '~') {
+        advance_token_and_lexer();
+        add_token_here(tMATCH);        
+      } else if (next_char == '>') {
+        advance_token_and_lexer();
+        add_token_here(tASSOC);        
+      } else {        
+        add_token_here(tASSIGN);
+      }
       break;
     case '!':
       next_char = peek();
@@ -571,14 +591,14 @@ Token* new_token() {
 }
 
 static const char *TypeString[] = {
-  "None", "Integer", "Float", "Period", "Identifier", "Space", "Keyword", "Newline",
+  "None", "Integer", "Float", "Dot", "Identifier", "Space", "Keyword", "Newline",
   "Left Paren", "Right Paren", "Left Bracket", "Right Bracket", "Comma", "String Start", "String Content",
   "String End", "Left Brace", "Right Brace", "Symbol Beginning", "Colon 2",
-  "BAR", "NOT", "EQUAL", "NOT_EQUAL", "NOT_MATCH", "RIGHT_SHIFT", "OP_ASSIGN",
+  "BAR", "NOT", "Assignment", "NOT_EQUAL", "NOT_MATCH", "RIGHT_SHIFT", "OP_ASSIGN",
   "GREATER_THAN", "GREATER_THAN_OR_EQUAL", "COLON3", "tINSTANCE_VAR", "tCLASS_VAR", "tIGNORED_tNEWLINE",
   "CONSTANT", "tSEMICOLON", "tPLUS", "tUPLUS", "tMINUS", "tUMINUS", "tLAMBDA", "tTILDE", "tMULTIPLY",
   "tDIVIDE", "tPOW", "tREGEXP_BEG", "tPERCENT", "tCARET", "tAMPER", "tAND_OP", "tAND_DOT", "tOROP",
-  "tLT", "tLEQ", "tLSHIFT", "tCMP"
+  "tLT", "tLEQ", "tLSHIFT", "tCMP", "tEQ", "tEQQ", "tMATCH", "tASSOC"
 };
 static void print_token(Token* token) {
   printf("-- token %s '%s' at (%lu, %lu)\n", TypeString[token->type], token->value, token->lineno, token->start);
