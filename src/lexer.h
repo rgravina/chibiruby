@@ -58,3 +58,4 @@ void crb_lexer_lex();
 Token* crb_next_token();
 Token* crb_previous_token();
 Token* crb_curr_token();
+void crb_set_token(Token* token);

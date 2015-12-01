@@ -64,6 +64,11 @@ Token* crb_curr_token() {
   return curr_token;
 }
 
+void crb_set_token(Token* token) {
+  curr_token = token;
+}
+
+
 void crb_free_lexer() {
   Token* token = lexer->head;
   while (token != NULL) {
@@ -407,15 +412,15 @@ void process_short_token() {
           advance_token_and_lexer();
           add_token_here(tEQQ);
         } else {
-          add_token_here(tEQ);          
+          add_token_here(tEQ);
         }
       } else if (next_char == '~') {
         advance_token_and_lexer();
-        add_token_here(tMATCH);        
+        add_token_here(tMATCH);
       } else if (next_char == '>') {
         advance_token_and_lexer();
-        add_token_here(tASSOC);        
-      } else {        
+        add_token_here(tASSOC);
+      } else {
         add_token_here(tASSIGN);
       }
       break;
