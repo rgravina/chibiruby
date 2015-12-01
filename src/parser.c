@@ -19,6 +19,7 @@ bool parse_varname();
 void parse_string();
 void parse_symbol();
 void print_token();
+bool parse_variable();
 void print_message(char* string);
 
 void crb_init_parser(char* code) {
@@ -501,13 +502,14 @@ void parse_mlhs_item() {
 }
 
 bool parse_lhs() {
+  print_message("- non-terminal: lhs");
   /*
   LHS: VARNAME
       | PRIMARY `[' [ARGS] `]'
       | PRIMARY `.' identifier
   */
   if (!parse_varname()) {
-    parse_primary();    
+    parse_primary();
     Token* curr_token = crb_curr_token();
     switch(curr_token->type) {
       case tLBRACE:
@@ -628,7 +630,8 @@ void parse_assoc() {
   */
 }
 
-void parse_variable() {
+bool parse_variable() {
+  print_message("- non-terminal: variable");
   /*
   VARIABLE        : VARNAME
                   | self
@@ -638,6 +641,7 @@ void parse_variable() {
                   | __FILE__
                   | __LINE__
   */
+  return parse_varname();
 }
 
 bool parse_literal() {
