@@ -105,8 +105,8 @@ void parse_expression() {
     */
     Token* token = crb_curr_token();
     if (token->type == tNOT) {
-      crb_next_token();
       print_message("- Found '!'");
+      crb_next_token();
       parse_command();
     }
     parse_arg();
@@ -118,8 +118,8 @@ void parse_terminal() {
     */
     Token* token = crb_curr_token();
     if (token->type == tSEMICOLON || token->type == tNEWLINE) {
-      crb_next_token();
       print_message("- Found terminal");
+      crb_next_token();
     } else {
     }
 }
@@ -509,6 +509,7 @@ bool parse_lhs() {
       | PRIMARY `.' identifier
   */
   if (!parse_varname()) {
+    Token* snapshot = crb_curr_token();
     parse_primary();
     Token* curr_token = crb_curr_token();
     switch(curr_token->type) {
@@ -528,6 +529,8 @@ bool parse_lhs() {
         break;
       default:
         // error
+        printf("Rolling back to: %s\n ", snapshot->value);
+        crb_set_token(snapshot);
         return false;
     }
   }
@@ -545,22 +548,22 @@ bool parse_varname() {
   Token* token = crb_curr_token();
   switch (token->type) {
     case tIDENTIFIER:
-      crb_next_token();
       if (parser->debug == true) {
         printf("- Found identifier: %s\n", token->value);
       }
+      crb_next_token();
       break;
     case tINSTANCE_VAR:
-      crb_next_token();
       if (parser->debug == true) {
         printf("- Found instance var: %s\n", token->value);
       }
+      crb_next_token();
       break;
     case tCLASS_VAR:
-      crb_next_token();
       if (parser->debug == true) {
         printf("- Found class var: %s\n", token->value);
       }
+      crb_next_token();
       break;
     default:
       return false;
@@ -657,8 +660,8 @@ bool parse_literal() {
   Token* token = crb_curr_token();
   switch (token->type) {
     case tINTEGER:
-      crb_next_token();
       print_token(token);
+      crb_next_token();
       break;
     default:
       return false;
