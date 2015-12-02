@@ -1,0 +1,34 @@
+PROGRAM : COMPSTMT
+
+COMPSTMT : STMT (TERM EXPR)* [TERM]
+
+STMT : EXPR
+
+EXPR : ARG
+
+ARG : LHS `=' ARG ARG'
+    | `+' ARG ARG'
+    | `-' ARG'
+    | `!' ARG'
+    | `~' ARG'
+    | defined? ARG ARG'
+    | PRIMARY ARG'
+
+ARG' : `..' ARG ARG'
+    | `...' ARG ARG'
+    | `+' ARG ARG'
+    | `-' ARG ARG'
+    | ... etc. ...
+    | null
+
+LHS : VARNAME
+    | PRIMARY `[' [ARGS] `]'
+    | PRIMARY `.' identifier
+
+VARNAME : `@'identifier
+        | `@@'identifier
+        | identifier
+
+PRIMARY: LITERAL
+
+LITERAL: numeric

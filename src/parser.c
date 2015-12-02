@@ -196,15 +196,20 @@ void parse_arg() {
     case tNOT:
       print_message("- Found '!'");
       crb_next_token();
-      parse_arg();
+      parse_arg_dash();
       break;
     case tUPLUS:
       print_message("- Found unary '+'");
       crb_next_token();
-      parse_arg();
+      parse_arg_dash();
       break;
     case tUMINUS:
       print_message("- Found unary '-'");
+      crb_next_token();
+      parse_arg_dash();
+      break;
+    case tTILDE:
+      print_message("- Found '~'");
       crb_next_token();
       parse_arg();
       break;
@@ -213,12 +218,8 @@ void parse_arg() {
         print_message("- Found keyword 'defined?'");
         crb_next_token();
         parse_arg();
+        parse_arg_dash();
       }
-      break;
-    case tTILDE:
-      print_message("- Found '~'");
-      crb_next_token();
-      parse_arg();
       break;
     default:
       // parse_arg_dash created to remove left-recursion of ARG op ARG statements.
