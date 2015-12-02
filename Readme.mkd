@@ -59,3 +59,8 @@ To build `chibirb`
 `
 make chibirb
 `
+
+## Grammar
+
+The grammar for ChibiRuby is currently a work in progress. Please see [the grammar Readme](grammar/Readme.mkd).
+
