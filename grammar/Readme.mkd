@@ -1,13 +1,19 @@
 # Ruby Grammars
 
-## `ruby-parse.y-grammar.txt`
+## Ruby MRI
 
-The one true source of the Ruby grammar, the MRI `parse.y`. This can be extracted with  `ruby sample/exyacc.rb < parse.y`.
+The one true source of the Ruby grammar, the MRI `parse.y`, contains Bison rules for generating the grammar, in conjuction with the lexer. This interplay is described in the Ruby Hacking Guide.
 
-## `ruby-docs-grammar.txt`
+The grammar rules can be extracted with `ruby sample/exyacc.rb < parse.y`.
 
-Contains the grammar as described in the [Ruby 2.2.0 docs](http://docs.ruby-lang.org/ja/2.2.0/doc/spec=2fbnf.html). According to comments it might be out of date.
+See `ruby-parse.y-grammar.txt`.
 
-## `grammar.txt`
+## Ruby docs BNF
 
-This contains the Chibi Ruby grammar in a form suitable for recursive decent parsing.
+The [Ruby 2.2.0 docs](http://docs.ruby-lang.org/ja/2.2.0/doc/spec=2fbnf.html) also show a BNF grammar for Ruby. According to comments it could be out of date.
+
+A copy of this is in `ruby-docs-grammar.txt`.
+
+## ChibiRuby
+
+This contains the ChibiRuby grammar in a form suitable for recursive decent parsing.
