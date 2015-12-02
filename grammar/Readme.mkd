@@ -16,4 +16,4 @@ A copy of this is in `ruby-docs-grammar.txt`.
 
 ## ChibiRuby
 
-This contains the ChibiRuby grammar in a form suitable for recursive decent parsing.
+TODO: The file `grammar.txt` contains the ChibiRuby grammar in a form suitable for recursive decent parsing.
