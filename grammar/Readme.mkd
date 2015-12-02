@@ -1,0 +1,13 @@
+# Ruby Grammars
+
+## `ruby-parse.y-grammar.txt`
+
+The one true source of the Ruby grammar, the MRI `parse.y`. This can be extracted with  `ruby sample/exyacc.rb < parse.y`.
+
+## `ruby-docs-grammar.txt`
+
+Contains the grammar as described in the [Ruby 2.2.0 docs](http://docs.ruby-lang.org/ja/2.2.0/doc/spec=2fbnf.html). According to comments it might be out of date.
+
+## `grammar.txt`
+
+This contains the Chibi Ruby grammar in a form suitable for recursive decent parsing.
