@@ -464,7 +464,7 @@ bool parse_primary() {
       COMPSTMT
       end
   */
-  return parse_literal();
+  return parse_literal() || parse_varname();
 }
 
 void parse_when_args() {

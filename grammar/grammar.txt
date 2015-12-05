@@ -30,5 +30,6 @@ VARNAME : `@'identifier
         | identifier
 
 PRIMARY: LITERAL
+        | VARIABLE
 
 LITERAL: numeric

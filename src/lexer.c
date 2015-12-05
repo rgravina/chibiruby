@@ -24,6 +24,7 @@ void process_short_token();
 void process_long_token();
 void start_long_token(TokenType type);
 
+static bool started_walking;
 void crb_init_lexer(char* code) {
   lexer = (Lexer*)malloc(sizeof(Lexer));
   lexer->print_tokens = false;
@@ -38,13 +39,15 @@ void crb_init_lexer(char* code) {
   lexer->newline_last_seen_pos = 0;
   lexer->curr_start_pos = 0;
   lexer->curr_end_pos = 0;
+  started_walking = false;
 }
 
 // used for iterating through the tokens from outside
 static Token* curr_token;
 Token* crb_next_token() {
-  if (curr_token == NULL) {
+  if (curr_token == NULL && !started_walking) {
     curr_token = lexer->head;
+    started_walking = true;
   } else {
     curr_token = curr_token->next;
   }
