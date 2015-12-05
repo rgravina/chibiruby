@@ -11,7 +11,7 @@ void parse_expression();
 void parse_terminal();
 bool parse_literal();
 bool parse_primary();
-void parse_arg();
+bool parse_arg();
 bool parse_arg_dash();
 void parse_command();
 bool parse_lhs();
@@ -154,7 +154,7 @@ void parse_function() {
     */
 }
 
-void parse_arg() {
+bool parse_arg() {
     print_message("- non-terminal: arg");
     /*
     ARG: LHS `=' ARG
@@ -192,6 +192,9 @@ void parse_arg() {
       | PRIMARY
   */
   Token* token = crb_curr_token();
+  if (token == NULL) {
+    return false;
+  }
   switch (token->type) {
     case tNOT:
       print_message("- Found '!'");
@@ -225,6 +228,7 @@ void parse_arg() {
       // parse_arg_dash created to remove left-recursion of ARG op ARG statements.
       parse_primary() && parse_arg_dash();
   }
+  return true;
 }
 
 bool parse_arg_dash() {
@@ -513,6 +517,9 @@ bool parse_lhs() {
     Token* snapshot = crb_curr_token();
     parse_primary();
     Token* curr_token = crb_curr_token();
+    if (curr_token == NULL) {
+      return false;
+    }
     switch(curr_token->type) {
       case tLBRACE:
         print_message("- terminal: '['");
@@ -547,6 +554,9 @@ bool parse_varname() {
     | identifier
   */
   Token* token = crb_curr_token();
+  if (token == NULL) {
+    return false;
+  }
   switch (token->type) {
     case tIDENTIFIER:
       if (parser->debug == true) {
@@ -659,6 +669,9 @@ bool parse_literal() {
                   | REGEXP
   */
   Token* token = crb_curr_token();
+  if (token == NULL) {
+    return false;
+  }
   switch (token->type) {
     case tINTEGER:
       print_token(token);
