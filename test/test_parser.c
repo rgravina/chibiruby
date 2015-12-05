@@ -35,7 +35,6 @@ void test_parser_lhs() {
 void test_parser_primary_varname() {
   char* code = "a=b";
   crb_init_parser(code);
-  parser->debug = true;
   crb_parser_parse();
   crb_free_parser();
 }
@@ -44,5 +43,5 @@ void crb_run_parser_tests() {
   test_parser_simple_expressions();
   test_parser_more_expressions();
   test_parser_lhs();
-  //test_parser_primary_varname();
+  test_parser_primary_varname();
 }

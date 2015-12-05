@@ -155,46 +155,12 @@ void parse_function() {
 }
 
 bool parse_arg() {
-    print_message("- non-terminal: arg");
-    /*
-    ARG: LHS `=' ARG
-      | LHS OP_ASGN ARG
-      | ARG `..' ARG
-      | ARG `...' ARG
-      | ARG `+' ARG
-      | ARG `-' ARG
-      | ARG `*' ARG
-      | ARG `/' ARG
-      | ARG `%' ARG
-      | ARG `**' ARG
-      | `+' ARG
-      | `-' ARG
-      | ARG `|' ARG
-      | ARG `^' ARG
-      | ARG `&' ARG
-      | ARG `<=>' ARG
-      | ARG `>' ARG
-      | ARG `>=' ARG
-      | ARG `<' ARG
-      | ARG `<=' ARG
-      | ARG `==' ARG
-      | ARG `===' ARG
-      | ARG `!=' ARG
-      | ARG `=~' ARG
-      | ARG `!~' ARG
-      | `!' ARG
-      | `~' ARG
-      | ARG `<<' ARG
-      | ARG `>>' ARG
-      | ARG `&&' ARG
-      | ARG `||' ARG
-      | defined? ARG
-      | PRIMARY
-  */
+  print_message("- non-terminal: arg");
   Token* token = crb_curr_token();
   if (token == NULL) {
     return false;
   }
+  Token* snapshot;
   switch (token->type) {
     case tNOT:
       print_message("- Found '!'");
@@ -227,6 +193,17 @@ bool parse_arg() {
     default:
       // parse_arg_dash created to remove left-recursion of ARG op ARG statements.
       if (parse_lhs()) {
+        token = crb_curr_token();
+        if (token == NULL) {
+          puts("not an LHS `=' ARG ARG'!");
+          return false;
+        }
+        if (token->type == tASSIGN) {
+          print_message("- Found '='");
+        } else {
+          puts("not an LHS `=' ARG ARG'!");
+          return false;
+        }
         crb_next_token();
         if (token->type == tIDENTIFIER) {
           parse_arg();
@@ -409,7 +386,6 @@ bool parse_arg_dash() {
 }
 
 bool parse_primary() {
-  print_message("- non-terminal: primary");
   /*
   PRIMARY: `(' COMPSTMT `)'
     | LITERAL
@@ -464,7 +440,10 @@ bool parse_primary() {
       COMPSTMT
       end
   */
-  return parse_literal() || parse_varname();
+  bool result = parse_literal() || parse_varname();
+  if (result)
+    print_message("- non-terminal: primary");
+  return result;
 }
 
 void parse_when_args() {
@@ -515,7 +494,6 @@ void parse_mlhs_item() {
 }
 
 bool parse_lhs() {
-  print_message("- non-terminal: lhs");
   /*
   LHS: VARNAME
       | PRIMARY `[' [ARGS] `]'
@@ -549,11 +527,11 @@ bool parse_lhs() {
         return false;
     }
   }
+  print_message("- non-terminal: lhs");
   return true;
 }
 
 bool parse_varname() {
-  print_message("- non-terminal: varname");
   /*
   VARNAME: GLOBAL
     | `@'identifier
@@ -586,6 +564,7 @@ bool parse_varname() {
     default:
       return false;
   }
+  print_message("- non-terminal: varname");
   return true;
 }
 
@@ -652,7 +631,6 @@ void parse_assoc() {
 }
 
 bool parse_variable() {
-  print_message("- non-terminal: variable");
   /*
   VARIABLE        : VARNAME
                   | self
@@ -662,11 +640,13 @@ bool parse_variable() {
                   | __FILE__
                   | __LINE__
   */
-  return parse_varname();
+  bool result = parse_varname();
+  if (result)
+    print_message("- non-terminal: variable");
+  return result;
 }
 
 bool parse_literal() {
-  print_message("- non-terminal: literal");
   /*
   LITERAL         : numeric
                   | SYMBOL
@@ -687,6 +667,7 @@ bool parse_literal() {
     default:
       return false;
   }
+  print_message("- non-terminal: literal");
   return true;
 }
 
