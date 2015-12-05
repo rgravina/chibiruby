@@ -226,7 +226,15 @@ bool parse_arg() {
       break;
     default:
       // parse_arg_dash created to remove left-recursion of ARG op ARG statements.
-      parse_primary() && parse_arg_dash();
+      if (parse_lhs()) {
+        crb_next_token();
+        if (token->type == tIDENTIFIER) {
+          parse_arg();
+          parse_arg_dash();
+        }
+      } else {
+        parse_primary() && parse_arg_dash();
+      }
   }
   return true;
 }
@@ -536,8 +544,7 @@ bool parse_lhs() {
         }
         break;
       default:
-        // error
-        printf("Rolling back to: %s\n ", snapshot->value);
+        // parse error or just lookahead couldn't match this, so go back.
         crb_set_token(snapshot);
         return false;
     }
