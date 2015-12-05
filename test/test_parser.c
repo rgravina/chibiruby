@@ -25,7 +25,8 @@ void test_parser_more_expressions() {
 }
 
 void test_parser_lhs() {
-  char* code = "a=2";
+  // add some expressions in here to make sure the parser resets after lhs OK
+  char* code = "a=2\n1&&2@a=2\n1==2\n@@a=1";
   crb_init_parser(code);
   crb_parser_parse();
   crb_free_parser();
