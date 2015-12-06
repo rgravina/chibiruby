@@ -161,7 +161,6 @@ bool parse_arg() {
   if (token == NULL) {
     return false;
   }
-  // parse_arg_dash created to remove left-recursion of ARG op ARG statements.
   Token* snapshot = crb_curr_token();
   switch (token->type) {
     case tNOT:
@@ -193,6 +192,7 @@ bool parse_arg() {
       }
       break;
     default:
+      // try lhs = arg arg'
       if (parse_lhs()) {
         token = crb_curr_token();
         if (token == NULL) {
@@ -202,16 +202,18 @@ bool parse_arg() {
           crb_next_token();
           parse_arg();
           parse_arg_dash();
+          return true;
         } else {
-          puts("not an LHS `=' ARG ARG'!");
           crb_set_token(snapshot);
         }
       }
+      // if gets to here, was not lhs = arg arg'. Try this alternative.
       parse_primary() && parse_arg_dash();
   }
   return true;
 }
 
+// parse_arg_dash created to remove left-recursion of ARG op ARG statements.
 bool parse_arg_dash() {
   Token* token = crb_curr_token();
   if (token == NULL) {
