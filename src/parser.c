@@ -108,8 +108,9 @@ void parse_expression() {
       print_message("- Found '!'");
       crb_next_token();
       parse_command();
+    } else {
+      parse_arg();
     }
-    parse_arg();
 }
 
 void parse_terminal() {
@@ -160,7 +161,8 @@ bool parse_arg() {
   if (token == NULL) {
     return false;
   }
-  Token* snapshot;
+  // parse_arg_dash created to remove left-recursion of ARG op ARG statements.
+  Token* snapshot = crb_curr_token();
   switch (token->type) {
     case tNOT:
       print_message("- Found '!'");
@@ -191,27 +193,21 @@ bool parse_arg() {
       }
       break;
     default:
-      // parse_arg_dash created to remove left-recursion of ARG op ARG statements.
       if (parse_lhs()) {
         token = crb_curr_token();
         if (token == NULL) {
-          puts("not an LHS `=' ARG ARG'!");
-          return false;
-        }
-        if (token->type == tASSIGN) {
+          crb_set_token(snapshot);
+        } else if (token->type == tASSIGN) {
           print_message("- Found '='");
-        } else {
-          puts("not an LHS `=' ARG ARG'!");
-          return false;
-        }
-        crb_next_token();
-        if (token->type == tIDENTIFIER) {
+          crb_next_token();
           parse_arg();
           parse_arg_dash();
+        } else {
+          puts("not an LHS `=' ARG ARG'!");
+          crb_set_token(snapshot);
         }
-      } else {
-        parse_primary() && parse_arg_dash();
       }
+      parse_primary() && parse_arg_dash();
   }
   return true;
 }
