@@ -38,7 +38,7 @@ typedef struct lexer {
   State state;
   char* code;
   char curr_char;
-  bool print_tokens;
+  bool debug;
   bool in_token;
   unsigned long curr_pos;
   unsigned long num_tokens;

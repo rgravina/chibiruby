@@ -27,7 +27,7 @@ void start_long_token(TokenType type);
 static bool started_walking;
 void crb_init_lexer(char* code) {
   lexer = (Lexer*)malloc(sizeof(Lexer));
-  lexer->print_tokens = false;
+  lexer->debug = false;
   lexer->head = NULL;
   lexer->tail = NULL;
   lexer->state = EXPR_BEG;
@@ -558,7 +558,7 @@ void advance_token() {
 
 void add_token() {
   Token* token = new_token();
-  if (lexer->print_tokens) {
+  if (lexer->debug) {
     print_token(token);
   }
   lexer->in_token = false;
