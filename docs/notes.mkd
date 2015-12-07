@@ -17,9 +17,9 @@ Ruby
   * Lexer - Start with 8.7 Tokens
 * Then, I went back to look at `parse_yylex()`.
 * Why does ruby `Ripper.lex` output contain 'ignored newlines'? (`on_ignored_nl`) v.s. 'newlines' (`on_nl`)?
-  * A: Because somtimes newlines denote the end of a statement and sometimes they do not. The RHG talks about this in Chapter 11.
+  * A: Because sometimes newlines denote the end of a statement and sometimes they do not. The RHG talks about this in Chapter 11.
   * But then... in `Ripper.lex` output, why are whitespace and comments tokens contain all of the content?
 * The content in RHG Chapter 11 about `lex_state` was really helpful for implementing this. To begin with I just implemented the state changes as described before really understanding why they changed at those points.
 * You can get the grammar from the ruby `parse.y` with `ruby sample/exyacc.rb < parse.y`
 * Ruby docs (in Japanese) contain a [BNF description](http://docs.ruby-lang.org/ja/2.2.0/doc/spec=2fbnf.html) of the Ruby grammar.
-* Not sure why Ruby’s grammar allows both indentifers and constants, because it reports identifiers as an error. Maybe it's a common error so it is better to catch as a semantic error not a parse error?
+* Not sure why Ruby’s grammar allows both indentifiers and constants for class names, because it reports identifiers as an error. Maybe it's a common error so it is better to catch as a semantic error not a parse error?
