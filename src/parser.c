@@ -62,9 +62,7 @@ void parse_program() {
 void parse_compound_statement() {
   print_message("- non-terminal: compstmt");
   Token* token = crb_curr_token();
-  print_token(token);
   while (token != NULL && parse_statement()) {
-    print_token(token);
     token = crb_curr_token();
     if (token != NULL) {
       parse_terminal();
@@ -194,6 +192,7 @@ bool parse_arg() {
   if (parse_lhs()) {
     token = crb_curr_token();
     if (token == NULL) {
+      print_message("- rolling back non terminal - matches part of LHS = ARG ARG'");
       crb_set_token(snapshot);
     } else if (token->type == tASSIGN) {
       print_message("- Found '='");
@@ -202,6 +201,7 @@ bool parse_arg() {
       parse_arg_dash();
       return true;
     } else {
+      print_message("- rolling back non terminal - matches part of LHS = ARG ARG'");
       crb_set_token(snapshot);
     }
   }
@@ -528,6 +528,7 @@ bool parse_lhs() {
         break;
       default:
         // parse error or just lookahead couldn't match this, so go back.
+        print_message("- rolling back non terminal - matches part of LHS: primary '[' or primary '.'");
         crb_set_token(snapshot);
         return false;
     }
@@ -678,13 +679,13 @@ bool parse_literal() {
   }
   switch (token->type) {
     case tINTEGER:
+      print_message("- non-terminal: literal");
       print_token(token);
       next();
       break;
     default:
       return false;
   }
-  print_message("- non-terminal: literal");
   return true;
 }
 
