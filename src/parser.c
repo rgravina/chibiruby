@@ -720,12 +720,8 @@ Token* next() {
   if (token == NULL) {
     return NULL;
   }
-  switch (token->type) {
-    case tSPACE:
-      crb_next_token();
-      break;
-    default:
-      break;
+  while (token->type == tSPACE || token->type == tIGNORED_NEWLINE) {
+    token = crb_next_token();
   }
   return crb_curr_token();
 }
