@@ -733,7 +733,11 @@ Token* next() {
 
 void print_token(Token* token) {
   if (parser->debug == true) {
-    printf("- token->value: %s\n", token->value);
+    if (token != NULL) {
+      printf("- token->value: %s\n", token->value);
+    } else {
+      puts("Token is NULL.");
+    }
   }
 }
 
