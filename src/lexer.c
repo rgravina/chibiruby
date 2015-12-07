@@ -209,6 +209,7 @@ void process_short_token() {
         case EXPR_FNAME:
         case EXPR_DOT:
         case EXPR_CLASS:
+        case EXPR_ARG:
           add_token_here(tIGNORED_NEWLINE);
           break;
         default:

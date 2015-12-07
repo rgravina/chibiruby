@@ -57,7 +57,6 @@ void test_parser_primary_paren_extras() {
 void test_parser_primary_class() {
   char* code = "class Dog < Animal\nend";
   crb_init_parser(code);
-  parser->debug=true;
   crb_parser_parse();
   crb_free_parser();
 }

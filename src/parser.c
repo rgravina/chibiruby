@@ -60,26 +60,22 @@ void parse_program() {
 }
 
 void parse_compound_statement() {
-  // COMPSTMT: STMT (TERM EXPR)* [TERM]
   print_message("- non-terminal: compstmt");
-  parse_statement();
-  Token* curr_token = crb_curr_token();
-  // could be nothing, a terminal or several terminal and expressions
-  while (curr_token != NULL && parse_terminal()) {
-    curr_token = crb_curr_token();
-    if (curr_token != NULL) {
-      parse_expression();
-      curr_token = crb_curr_token();
+  Token* token = crb_curr_token();
+  print_token(token);
+  while (token != NULL && parse_statement()) {
+    print_token(token);
+    token = crb_curr_token();
+    if (token != NULL) {
+      parse_terminal();
     }
+    token = crb_curr_token();
   }
 }
 
 bool parse_statement() {
   print_message("- non-terminal: stmt");
-  if (!parse_expression()) {
-    // can be none
-  };
-  return true;
+  return parse_expression();
 }
 
 bool parse_expression() {
@@ -210,8 +206,7 @@ bool parse_arg() {
     }
   }
   // if gets to here, was not lhs = arg arg'. Try this alternative.
-  parse_primary() && parse_arg_dash();
-  return true;
+  return parse_primary() && parse_arg_dash();
 }
 
 // parse_arg_dash created to remove left-recursion of ARG op ARG statements.
@@ -435,6 +430,7 @@ bool parse_primary() {
             token = next();
           }
         }
+        token = next();
         parse_compound_statement();
         token = crb_curr_token();
         if (token->type == tKEYWORD && strcmp(token->value, "end") == 0) {
