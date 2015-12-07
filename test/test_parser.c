@@ -32,9 +32,32 @@ void test_parser_lhs() {
   crb_free_parser();
 }
 
+void test_parser_lhs_extras() {
+  // seems this is syntactially valid but a semantic error
+  char* code = "a[]=1\na.b=2";
+  crb_init_parser(code);
+  crb_parser_parse();
+  crb_free_parser();
+}
+
 void test_parser_primary_varname() {
   char* code = "a=b";
   crb_init_parser(code);
+  crb_parser_parse();
+  crb_free_parser();
+}
+
+void test_parser_primary_paren_extras() {
+  char* code = "(a+b)+(a+b)\n::a";
+  crb_init_parser(code);
+  crb_parser_parse();
+  crb_free_parser();
+}
+
+void test_parser_primary_class() {
+  char* code = "class Dog < Animal\nend";
+  crb_init_parser(code);
+  parser->debug=true;
   crb_parser_parse();
   crb_free_parser();
 }
@@ -43,5 +66,8 @@ void crb_run_parser_tests() {
   test_parser_simple_expressions();
   test_parser_more_expressions();
   test_parser_lhs();
+  test_parser_lhs_extras();
   test_parser_primary_varname();
+  test_parser_primary_paren_extras();
+  test_parser_primary_class();
 }

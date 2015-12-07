@@ -1,35 +1,44 @@
-PROGRAM : COMPSTMT
+PROGRAM: COMPSTMT
 
-COMPSTMT : STMT (TERM EXPR)* [TERM]
+COMPSTMT: STMT (TERM EXPR)* [TERM]
 
-STMT : EXPR
+STMT: EXPR
+    | none
 
-EXPR : ARG
+EXPR: ARG
 
-ARG : LHS `=' ARG ARG'
-    | `+' ARG ARG'
-    | `-' ARG'
-    | `!' ARG'
-    | `~' ARG'
-    | defined? ARG ARG'
-    | PRIMARY ARG'
+ARG: LHS '=' ARG ARG'
+   | '+' ARG ARG'
+   | '-' ARG'
+   | '!' ARG'
+   | '~' ARG'
+   | defined? ARG ARG'
+   | PRIMARY ARG'
 
-ARG' : `..' ARG ARG'
-    | `...' ARG ARG'
-    | `+' ARG ARG'
-    | `-' ARG ARG'
+ARG': '..' ARG ARG'
+    | '...' ARG ARG'
+    | '+' ARG ARG'
+    | '-' ARG ARG'
     | ... etc. ...
     | null
 
-LHS : VARNAME
-    | PRIMARY `[' [ARGS] `]'
-    | PRIMARY `.' identifier
+LHS: VARNAME
+   | PRIMARY '[' [ARGS] ']'
+   | PRIMARY '.' identifier
 
-VARNAME : `@'identifier
-        | `@@'identifier
-        | identifier
+ARGS: ARG (',' ARG)*
+
+VARNAME: '@'identifier
+         | '@@'identifier
+         | identifier
 
 PRIMARY: LITERAL
         | VARIABLE
+        | '(' COMPSTMT ')'
+        | '::' identifier
+        | class CLASS_NAME [`<' CLASS_NAME] COMPSTMT end
+
+CLASS_NAME: identifier
+    | constant
 
 LITERAL: numeric

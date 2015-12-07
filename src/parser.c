@@ -6,9 +6,9 @@
 
 void parse_program();
 void parse_compound_statement();
-void parse_statement();
-void parse_expression();
-void parse_terminal();
+bool parse_statement();
+bool parse_expression();
+bool parse_terminal();
 bool parse_literal();
 bool parse_primary();
 bool parse_arg();
@@ -20,6 +20,9 @@ void parse_string();
 void parse_symbol();
 void print_token();
 bool parse_variable();
+bool parse_args();
+Token* next();
+
 void print_message(char* string);
 
 void crb_init_parser(char* code) {
@@ -61,9 +64,8 @@ void parse_compound_statement() {
   print_message("- non-terminal: compstmt");
   parse_statement();
   Token* curr_token = crb_curr_token();
-  // // could be nothing, a terminal or several terminal and expressions
-  while (curr_token != NULL) {
-    parse_terminal();
+  // could be nothing, a terminal or several terminal and expressions
+  while (curr_token != NULL && parse_terminal()) {
     curr_token = crb_curr_token();
     if (curr_token != NULL) {
       parse_expression();
@@ -72,26 +74,15 @@ void parse_compound_statement() {
   }
 }
 
-void parse_statement() {
+bool parse_statement() {
   print_message("- non-terminal: stmt");
-  /*
-  STMT: CALL do [`|' [BLOCK_VAR] `|'] COMPSTMT end
-      | LHS `=' COMMAND [do [`|' [BLOCK_VAR] `|'] COMPSTMT end]
-      | alias FNAME FNAME
-      | undef (FNAME | SYMBOL)+
-      | STMT if EXPR
-      | STMT while EXPR
-      | STMT unless EXPR
-      | STMT until EXPR
-      | STMT rescue STMT
-      | `BEGIN' `{' COMPSTMT `}'
-      | `END' `{' COMPSTMT `}'
-      | EXPR
-  */
-  parse_expression();
+  if (!parse_expression()) {
+    // can be none
+  };
+  return true;
 }
 
-void parse_expression() {
+bool parse_expression() {
     print_message("- non-terminal: expr");
     /*
     EXPR: MLHS `=' MRHS
@@ -106,22 +97,26 @@ void parse_expression() {
     Token* token = crb_curr_token();
     if (token->type == tNOT) {
       print_message("- Found '!'");
-      crb_next_token();
+      next();
       parse_command();
+      return true;
     } else {
-      parse_arg();
+      return parse_arg();
     }
+  return false;
 }
 
-void parse_terminal() {
+bool parse_terminal() {
     /*
       TERM: `;' | `\n'
     */
     Token* token = crb_curr_token();
     if (token->type == tSEMICOLON || token->type == tNEWLINE) {
       print_message("- Found terminal");
-      crb_next_token();
+      next();
+      return true;
     } else {
+      return false;
     }
 }
 
@@ -165,51 +160,57 @@ bool parse_arg() {
   switch (token->type) {
     case tNOT:
       print_message("- Found '!'");
-      crb_next_token();
+      next();
       parse_arg_dash();
+      return true;
       break;
     case tUPLUS:
       print_message("- Found unary '+'");
-      crb_next_token();
+      next();
       parse_arg_dash();
+      return true;
       break;
     case tUMINUS:
       print_message("- Found unary '-'");
-      crb_next_token();
+      next();
       parse_arg_dash();
+      return true;
       break;
     case tTILDE:
       print_message("- Found '~'");
-      crb_next_token();
+      next();
       parse_arg();
+      return true;
       break;
     case tKEYWORD:
       if (strcmp(token->value, "defined?") == 0) {
         print_message("- Found keyword 'defined?'");
-        crb_next_token();
+        next();
         parse_arg();
         parse_arg_dash();
+        return true;
       }
       break;
     default:
-      // try lhs = arg arg'
-      if (parse_lhs()) {
-        token = crb_curr_token();
-        if (token == NULL) {
-          crb_set_token(snapshot);
-        } else if (token->type == tASSIGN) {
-          print_message("- Found '='");
-          crb_next_token();
-          parse_arg();
-          parse_arg_dash();
-          return true;
-        } else {
-          crb_set_token(snapshot);
-        }
-      }
-      // if gets to here, was not lhs = arg arg'. Try this alternative.
-      parse_primary() && parse_arg_dash();
+      break;
   }
+  // try lhs = arg arg'
+  if (parse_lhs()) {
+    token = crb_curr_token();
+    if (token == NULL) {
+      crb_set_token(snapshot);
+    } else if (token->type == tASSIGN) {
+      print_message("- Found '='");
+      next();
+      parse_arg();
+      parse_arg_dash();
+      return true;
+    } else {
+      crb_set_token(snapshot);
+    }
+  }
+  // if gets to here, was not lhs = arg arg'. Try this alternative.
+  parse_primary() && parse_arg_dash();
   return true;
 }
 
@@ -222,157 +223,157 @@ bool parse_arg_dash() {
   switch (token->type) {
     case tDOT2:
       print_message("- Found '..'");
-      crb_next_token();
+      next();
       parse_arg();
       parse_arg_dash();
       break;
     case tDOT3:
       print_message("- Found '...'");
-      crb_next_token();
+      next();
       parse_arg();
       parse_arg_dash();
       break;
     case tPLUS:
       print_message("- Found '+'");
-      crb_next_token();
+      next();
       parse_arg();
       parse_arg_dash();
       break;
     case tMINUS:
       print_message("- Found '-'");
-      crb_next_token();
+      next();
       parse_arg();
       parse_arg_dash();
       break;
     case tMULTIPLY:
       print_message("- Found '*'");
-      crb_next_token();
+      next();
       parse_arg();
       parse_arg_dash();
       break;
     case tDIVIDE:
       print_message("- Found '/'");
-      crb_next_token();
+      next();
       parse_arg();
       parse_arg_dash();
       break;
     case tPERCENT:
       print_message("- Found '%'");
-      crb_next_token();
+      next();
       parse_arg();
       parse_arg_dash();
       break;
     case tOROP:
       print_message("- Found '||'");
-      crb_next_token();
+      next();
       parse_arg();
       parse_arg_dash();
       break;
     case tPOW:
       print_message("- Found '**'");
-      crb_next_token();
+      next();
       parse_arg();
       parse_arg_dash();
       break;
     case tBAR:
       print_message("- Found '|'");
-      crb_next_token();
+      next();
       parse_arg();
       parse_arg_dash();
       break;
     case tCARET:
       print_message("- Found '^'");
-      crb_next_token();
+      next();
       parse_arg();
       parse_arg_dash();
       break;
     case tAMPER:
       print_message("- Found '&'");
-      crb_next_token();
+      next();
       parse_arg();
       parse_arg_dash();
       break;
     case tAND_OP:
       print_message("- Found '&&'");
-      crb_next_token();
+      next();
       parse_arg();
       parse_arg_dash();
       break;
     case tAND_DOT:
       print_message("- Found '&.'");
-      crb_next_token();
+      next();
       parse_arg();
       parse_arg_dash();
       break;
     case tLT:
       print_message("- Found '<'");
-      crb_next_token();
+      next();
       parse_arg();
       parse_arg_dash();
       break;
     case tLEQ:
       print_message("- Found '<='");
-      crb_next_token();
+      next();
       parse_arg();
       parse_arg_dash();
       break;
     case tLSHIFT:
       print_message("- Found '<<'");
-      crb_next_token();
+      next();
       parse_arg();
       parse_arg_dash();
       break;
     case tCMP:
       print_message("- Found '<=>'");
-      crb_next_token();
+      next();
       parse_arg();
       parse_arg_dash();
       break;
     case tGT:
       print_message("- Found '>'");
-      crb_next_token();
+      next();
       parse_arg();
       parse_arg_dash();
       break;
     case tGEQ:
       print_message("- Found '>='");
-      crb_next_token();
+      next();
       parse_arg();
       parse_arg_dash();
       break;
     case tRSHIFT:
       print_message("- Found '>>'");
-      crb_next_token();
+      next();
       parse_arg();
       parse_arg_dash();
       break;
     case tEQ:
       print_message("- Found '=='");
-      crb_next_token();
+      next();
       parse_arg();
       parse_arg_dash();
       break;
     case tEQQ:
       print_message("- Found '==='");
-      crb_next_token();
+      next();
       parse_arg();
       parse_arg_dash();
       break;
     case tMATCH:
       print_message("- Found '=~'");
-      crb_next_token();
+      next();
       parse_arg();
       parse_arg_dash();
       break;
     case tNOT_EQUAL:
       print_message("- Found '!='");
-      crb_next_token();
+      next();
       parse_arg();
       parse_arg_dash();
       break;
     case tNOT_MATCH:
       print_message("- Found '!~'");
-      crb_next_token();
+      next();
       parse_arg();
       parse_arg_dash();
       break;
@@ -384,61 +385,69 @@ bool parse_arg_dash() {
 }
 
 bool parse_primary() {
-  /*
-  PRIMARY: `(' COMPSTMT `)'
-    | LITERAL
-    | VARIABLE
-    | PRIMARY `::' identifier
-    | `::' identifier
-    | PRIMARY `[' [ARGS] `]'
-    | `[' [ARGS [`,']] `]'
-    | `{' [(ARGS|ASSOCS) [`,']] `}'
-    | return [`(' [CALL_ARGS] `)']
-    | yield [`(' [CALL_ARGS] `)']
-    | defined? `(' ARG `)'
-    | FUNCTION
-    | FUNCTION `{' [`|' [BLOCK_VAR] `|'] COMPSTMT `}'
-    | if EXPR THEN
-      COMPSTMT
-      (elsif EXPR THEN COMPSTMT)*
-      [else COMPSTMT]
-      end
-    | unless EXPR THEN
-      COMPSTMT
-      [else COMPSTMT]
-      end
-    | while EXPR DO COMPSTMT end
-    | until EXPR DO COMPSTMT end
-    | case [EXPR]
-      (when WHEN_ARGS THEN COMPSTMT)+
-      [else COMPSTMT]
-      end
-    | for BLOCK_VAR in EXPR DO
-      COMPSTMT
-      end
-    | begin
-      COMPSTMT
-      [rescue [ARGS] [`=>' LHS] THEN COMPSTMT]+
-      [else COMPSTMT]
-      [ensure COMPSTMT]
-      end
-    | class identifier [`<' identifier]
-      COMPSTMT
-      end
-    | module identifier
-      COMPSTMT
-      end
-    | def FNAME ARGDECL
-      COMPSTMT
-      [rescue [ARGS] [`=>' LHS] THEN COMPSTMT]+
-      [else COMPSTMT]
-      [ensure COMPSTMT]
-      end
-    | def SINGLETON (`.'|`::') FNAME ARGDECL
-      COMPSTMT
-      end
-  */
   bool result = parse_literal() || parse_varname();
+  if (!result) {
+    Token* token = crb_curr_token();
+    if (token == NULL) {
+      return false;
+    }
+    switch(token->type) {
+    case tLPAREN:
+      print_message("- Found '('");
+      next();
+      parse_compound_statement();
+      if (token->type == tRPAREN) {
+        print_message("- Found ')'");
+        next();
+        result = true;
+      }
+      break;
+    case tCOLON3:
+      print_message("- Found '::' tCOLON3 e.g. ::a");
+      next();
+      if (token->type == tIDENTIFIER) {
+        print_message("- Found identifier");
+        next();
+        result = true;
+      }
+      break;
+    case tKEYWORD:
+      if (strcmp(token->value, "class") == 0) {
+        print_message("- Found 'class'");
+        token = next();
+        if (token->type == tIDENTIFIER) {
+          print_message("- Found identifier");
+          token = next();
+        }
+        if (token->type == tCONSTANT) {
+          print_message("- Found constant");
+          token = next();
+        }
+        if (token->type == tLT) {
+          print_message("- Found '<'");
+          token = next();
+          if (token->type == tIDENTIFIER) {
+            print_message("- Found identifier");
+            token = next();
+          }
+          if (token->type == tCONSTANT) {
+            print_message("- Found constant");
+            token = next();
+          }
+        }
+        parse_compound_statement();
+        token = crb_curr_token();
+        if (token->type == tKEYWORD && strcmp(token->value, "end") == 0) {
+          print_message("- Found end");
+          token = next();
+        }
+        result = true;
+      }
+      break;
+    default:
+      break;
+    }
+  }
   if (result)
     print_message("- non-terminal: primary");
   return result;
@@ -505,18 +514,28 @@ bool parse_lhs() {
       return false;
     }
     switch(curr_token->type) {
-      case tLBRACE:
+      case tLBRACKET:
         print_message("- terminal: '['");
-        curr_token = crb_next_token();
+        curr_token = next();
+        if (curr_token->type == tRBRACKET) {
+          print_message("- terminal: ']'");
+          curr_token = next();
+          break;
+        }
+        parse_args();
+        if (curr_token->type == tRBRACKET) {
+          print_message("- terminal: ']'");
+          curr_token = next();
+        }
         break;
       case tDOT:
         print_message("- terminal: '.'");
-        curr_token = crb_next_token();
+        curr_token = next();
         if (curr_token->type == tIDENTIFIER) {
           if (parser->debug == true) {
             printf("- Found identifier: %s\n", curr_token->value);
           }
-          crb_next_token();
+          next();
         }
         break;
       default:
@@ -545,19 +564,19 @@ bool parse_varname() {
       if (parser->debug == true) {
         printf("- Found identifier: %s\n", token->value);
       }
-      crb_next_token();
+      next();
       break;
     case tINSTANCE_VAR:
       if (parser->debug == true) {
         printf("- Found instance var: %s\n", token->value);
       }
-      crb_next_token();
+      next();
       break;
     case tCLASS_VAR:
       if (parser->debug == true) {
         printf("- Found class var: %s\n", token->value);
       }
-      crb_next_token();
+      next();
       break;
     default:
       return false;
@@ -584,10 +603,22 @@ void parse_call_args() {
   */
 }
 
-void parse_args() {
+bool parse_args() {
   /*
   ARGS: ARG (`,' ARG)*
   */
+  if (parse_arg()) {
+    puts("looks like parse args");
+    Token* token = crb_curr_token();
+    while (token->type == tCOMMA) {
+      print_message("- terminal: ','");
+      next();
+      parse_arg();
+    }
+  } else {
+    return false;
+  }
+  return true;
 }
 
 void parse_argdecl() {
@@ -660,7 +691,7 @@ bool parse_literal() {
   switch (token->type) {
     case tINTEGER:
       print_token(token);
-      crb_next_token();
+      next();
       break;
     default:
       return false;
@@ -684,9 +715,25 @@ void parse_string() {
   */
 }
 
+Token* next() {
+  Token* token = crb_next_token();
+  if (token == NULL) {
+    return NULL;
+  }
+  switch (token->type) {
+    case tSPACE:
+      crb_next_token();
+      break;
+    default:
+      break;
+  }
+  return crb_curr_token();
+}
+
+
 void print_token(Token* token) {
   if (parser->debug == true) {
-    printf("- Found: %s\n", token->value);
+    printf("- token->value: %s\n", token->value);
   }
 }
 
