@@ -61,6 +61,13 @@ void test_parser_primary_class() {
   crb_free_parser();
 }
 
+void test_parser_primary_begin_end() {
+  char* code = "begin a=1+2 end";
+  crb_init_parser(code);
+  crb_parser_parse();
+  crb_free_parser();
+}
+
 void crb_run_parser_tests() {
   test_parser_simple_expressions();
   test_parser_more_expressions();
@@ -69,4 +76,5 @@ void crb_run_parser_tests() {
   test_parser_primary_varname();
   test_parser_primary_paren_extras();
   test_parser_primary_class();
+  test_parser_primary_begin_end();
 }

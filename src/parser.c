@@ -430,6 +430,16 @@ bool parse_primary() {
           token = next();
         }
         result = true;
+      } else if (strcmp(token->value, "begin") == 0) {
+        print_message("- Found 'begin'");
+        next();
+        parse_compound_statement();
+        token = crb_curr_token();
+        if (strcmp(token->value, "end") == 0) {
+          print_message("- Found 'end'");
+          token = next();
+        }
+        result = true;
       }
       break;
     default:

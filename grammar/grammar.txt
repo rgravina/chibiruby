@@ -38,5 +38,6 @@ PRIMARY: LITERAL
         | '(' COMPSTMT ')'
         | '::' identifier
         | class constant [`<' constant] COMPSTMT end
+        | begin COMPSTMT end
 
 LITERAL: numeric
