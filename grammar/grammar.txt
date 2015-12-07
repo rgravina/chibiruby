@@ -37,9 +37,6 @@ PRIMARY: LITERAL
         | VARIABLE
         | '(' COMPSTMT ')'
         | '::' identifier
-        | class CLASS_NAME [`<' CLASS_NAME] COMPSTMT end
-
-CLASS_NAME: identifier
-    | constant
+        | class constant [`<' constant] COMPSTMT end
 
 LITERAL: numeric

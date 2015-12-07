@@ -410,10 +410,6 @@ bool parse_primary() {
       if (strcmp(token->value, "class") == 0) {
         print_message("- Found 'class'");
         token = next();
-        if (token->type == tIDENTIFIER) {
-          print_message("- Found identifier");
-          token = next();
-        }
         if (token->type == tCONSTANT) {
           print_message("- Found constant");
           token = next();
@@ -421,10 +417,6 @@ bool parse_primary() {
         if (token->type == tLT) {
           print_message("- Found '<'");
           token = next();
-          if (token->type == tIDENTIFIER) {
-            print_message("- Found identifier");
-            token = next();
-          }
           if (token->type == tCONSTANT) {
             print_message("- Found constant");
             token = next();
