@@ -4,9 +4,26 @@ STMTS: (STMT)*
 TERMINALS: (TERMINAL)*
 TERMINAL: ';' | '\n'
 
-STMT: EXPR
+STMT: EXPR STMT'
 
-EXPR: ARG
+STMT': if EXPR STMT'
+    | while EXPR STMT'
+    | unless EXPR STMT'
+    | until EXPR STMT'
+    | rescue STMT STMT'
+    | null
+
+EXPR: ARG | CALL
+
+CALL: FNAME CALL_ARGS
+
+FNAME: (tIDENTIFIER | tCONSTANT | tFID)
+
+CALL_ARGS: ARGS | ARGS [',' ASSOCS]
+
+ASSOCS: ASSOC (',' ASSOC)*
+
+ASSOC: ARG '=>' ARG
 
 ARG: LHS '=' ARG ARG'
    | '+' ARG ARG'
@@ -39,5 +56,10 @@ PRIMARY: LITERAL
         | '::' identifier
         | class constant [`<' constant] COMPSTMT end
         | begin COMPSTMT end
+        | 'def' FNAME ARGDECL COMPSTMT 'end'
+
+ARGDECL: '(' ARGLIST ')' | ARGLIST TERMINAL
+
+ARGLIST: identifier (',' identifier)*
 
 LITERAL: numeric

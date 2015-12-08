@@ -181,10 +181,10 @@ void test_lexer_greater_than() {
 }
 
 void test_lexer_identifiers_and_constants() {
-  char* code = "a\n@a\n@@a\na?\nA";
+  char* code = "a\n@a\n@@a\na?\nA\na!";
   crb_init_lexer(code);
   crb_lexer_lex();
-  ok(lexer->num_tokens == 9);
+  ok(lexer->num_tokens == 11);
   ok(lexer->in_token == false);
   check_token(1, 0, tIDENTIFIER, "a");
   check_token(1, 1, tNEWLINE, "\n");
@@ -192,9 +192,11 @@ void test_lexer_identifiers_and_constants() {
   check_token(2, 2, tNEWLINE, "\n");
   check_token(3, 0, tCLASS_VAR, "@@a");
   check_token(3, 3, tNEWLINE, "\n");
-  check_token(4, 0, tIDENTIFIER, "a?");
+  check_token(4, 0, tFID, "a?");
   check_token(4, 2, tNEWLINE, "\n");
   check_token(5, 0, tCONSTANT, "A");
+  check_token(5, 1, tNEWLINE, "\n");
+  check_token(6, 0, tFID, "a!");
   crb_free_lexer();
 }
 

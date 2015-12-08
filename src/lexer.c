@@ -156,11 +156,15 @@ void process_long_token() {
     case tCONSTANT:
     case tINSTANCE_VAR:
     case tCLASS_VAR:
+    case tFID:
       if (!valid_identifier_char()) {
         lexer->state = EXPR_END;
         add_token();
         pushback();
       } else {
+        if (lexer->curr_char == '!' || lexer->curr_char == '?') {
+          lexer->curr_type = tFID;
+        }
         advance_token();
       }
       break;
@@ -607,7 +611,7 @@ static const char *TypeString[] = {
   "GREATER_THAN", "GREATER_THAN_OR_EQUAL", "COLON3", "tINSTANCE_VAR", "tCLASS_VAR", "tIGNORED_tNEWLINE",
   "CONSTANT", "tSEMICOLON", "tPLUS", "tUPLUS", "tMINUS", "tUMINUS", "tLAMBDA", "tTILDE", "tMULTIPLY",
   "tDIVIDE", "tPOW", "tREGEXP_BEG", "tPERCENT", "tCARET", "tAMPER", "tAND_OP", "tAND_DOT", "tOROP",
-  "tLT", "tLEQ", "tLSHIFT", "tCMP", "tEQ", "tEQQ", "tMATCH", "tASSOC"
+  "tLT", "tLEQ", "tLSHIFT", "tCMP", "tEQ", "tEQQ", "tMATCH", "tASSOC", "tFID"
 };
 static void print_token(Token* token) {
   printf("-- token %s '%s' at (%lu, %lu)\n", TypeString[token->type], token->value, token->lineno, token->start);

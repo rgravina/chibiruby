@@ -68,6 +68,20 @@ void test_parser_primary_begin_end() {
   crb_free_parser();
 }
 
+void test_parser_stmt_trailing_condition() {
+  char* code = "a=1+2 if a==1\na=1+2 unless a==1\na=1+2 while a==1\na=1+2 until a==1";
+  crb_init_parser(code);
+  crb_parser_parse();
+  crb_free_parser();
+}
+
+void test_parser_stmt_trailing_rescue() {
+  char* code = "a=1+2 rescue a=1";
+  crb_init_parser(code);
+  crb_parser_parse();
+  crb_free_parser();
+}
+
 void crb_run_parser_tests() {
   test_parser_simple_expressions();
   test_parser_more_expressions();
@@ -77,4 +91,6 @@ void crb_run_parser_tests() {
   test_parser_primary_paren_extras();
   test_parser_primary_class();
   test_parser_primary_begin_end();
+  test_parser_stmt_trailing_condition();
+  test_parser_stmt_trailing_rescue();
 }

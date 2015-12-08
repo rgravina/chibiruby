@@ -7,6 +7,7 @@
 void parse_program();
 void parse_compound_statement();
 bool parse_statement();
+bool parse_statement_dash();
 bool parse_expression();
 bool parse_terminal();
 bool parse_literal();
@@ -73,7 +74,49 @@ void parse_compound_statement() {
 
 bool parse_statement() {
   print_message("- non-terminal: stmt");
-  return parse_expression();
+  return parse_expression() && parse_statement_dash();
+}
+
+bool parse_statement_dash() {
+  Token* token = crb_curr_token();
+  print_token(token);
+  if (token == NULL) {
+    return false;
+  }
+  switch (token->type) {
+    case tKEYWORD:
+      if (strcmp(token->value, "if") == 0) {
+        print_message("- Found 'if'");
+        next();
+        parse_expression();
+        parse_statement_dash();
+      } else if (strcmp(token->value, "while") == 0) {
+        print_message("- Found 'while'");
+        next();
+        parse_expression();
+        parse_statement_dash();
+      } else if (strcmp(token->value, "unless") == 0) {
+        print_message("- Found 'unless'");
+        next();
+        parse_expression();
+        parse_statement_dash();
+      } else if (strcmp(token->value, "until") == 0) {
+        print_message("- Found 'until'");
+        next();
+        parse_expression();
+        parse_statement_dash();
+      } else if (strcmp(token->value, "rescue") == 0) {
+        print_message("- Found 'rescue'");
+        next();        
+        parse_statement();
+        parse_statement_dash();
+      }
+      break;
+    default:
+      // empty production is OK
+      break;
+  }
+  return true;
 }
 
 bool parse_expression() {
