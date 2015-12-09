@@ -2,6 +2,7 @@
 #include <string.h>
 #include "tap.h"
 #include "parser.h"
+#include "node.h"
 
 void test_parser() {
   char* code = "10.times do |n|\n  puts n\nend";
@@ -82,6 +83,21 @@ void test_parser_stmt_trailing_rescue() {
   crb_free_parser();
 }
 
+void test_parser_expr_call() {
+  char* code = "puts 1";
+  crb_init_parser(code);
+  crb_parser_parse();
+  crb_free_parser();
+}
+
+void test_parser_simple_node() {
+  char* code = "1";
+  crb_init_parser(code);
+  parser->debug = true;
+  crb_parser_parse();
+  crb_free_parser();
+}
+
 void crb_run_parser_tests() {
   test_parser_simple_expressions();
   test_parser_more_expressions();
@@ -93,4 +109,6 @@ void crb_run_parser_tests() {
   test_parser_primary_begin_end();
   test_parser_stmt_trailing_condition();
   test_parser_stmt_trailing_rescue();
+  test_parser_expr_call();
+  test_parser_simple_node();
 }

@@ -3,12 +3,16 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include "parser.h"
+#include "node.h"
 
 void parse_program();
 void parse_compound_statement();
 bool parse_statement();
 bool parse_statement_dash();
 bool parse_expression();
+bool parse_call();
+bool parse_function_name();
+bool parse_call_args();
 bool parse_terminal();
 bool parse_literal();
 bool parse_primary();
@@ -24,7 +28,7 @@ bool parse_variable();
 bool parse_args();
 Token* next();
 
-void print_message(char* string);
+static void print_message(char* string);
 
 void crb_init_parser(char* code) {
   crb_init_lexer(code);
@@ -57,6 +61,9 @@ void parse_program() {
   // PROGRAM: COMPSTMT
   print_message("- non-terminal: program");
   crb_next_token();
+  crb_node_init(parser->debug);
+  crb_node_begin();
+  crb_node_add_node(nSCOPE);
   parse_compound_statement();
 }
 
@@ -74,7 +81,10 @@ void parse_compound_statement() {
 
 bool parse_statement() {
   print_message("- non-terminal: stmt");
-  return parse_expression() && parse_statement_dash();
+  bool result = parse_expression() && parse_statement_dash();
+  if (result)
+    print_message("- MATCH: STMT");    
+  return result;
 }
 
 bool parse_statement_dash() {
@@ -121,16 +131,6 @@ bool parse_statement_dash() {
 
 bool parse_expression() {
     print_message("- non-terminal: expr");
-    /*
-    EXPR: MLHS `=' MRHS
-        | return CALL_ARGS
-        | EXPR and EXPR
-        | EXPR or EXPR
-        | not EXPR
-        | COMMAND
-        | `!' COMMAND
-        | ARG
-    */
     Token* token = crb_curr_token();
     if (token->type == tNOT) {
       print_message("- Found '!'");
@@ -138,15 +138,12 @@ bool parse_expression() {
       parse_command();
       return true;
     } else {
-      return parse_arg();
+      return parse_call() || parse_arg();
     }
   return false;
 }
 
 bool parse_terminal() {
-    /*
-      TERM: `;' | `\n'
-    */
     Token* token = crb_curr_token();
     if (token->type == tSEMICOLON || token->type == tNEWLINE) {
       print_message("- Found terminal");
@@ -157,11 +154,18 @@ bool parse_terminal() {
     }
 }
 
-void parse_call() {
-  /*
-  CALL: FUNCTION
-      | COMMAND
-  */
+bool parse_call() {
+  print_message("- non-terminal: call");
+  Token* snapshot = crb_curr_token();
+  if (parse_function_name()) {
+    if (parse_call_args()) {
+      print_message("- MATCH: call");      
+      return true;
+    }
+    print_message("- rolling back non terminal - matches part of CALL");
+    crb_set_token(snapshot);
+  }
+  return false;
 }
 
 void parse_command() {
@@ -235,6 +239,7 @@ bool parse_arg() {
   if (parse_lhs()) {
     token = crb_curr_token();
     if (token == NULL) {
+      crb_node_rollback();
       print_message("- rolling back non terminal - matches part of LHS = ARG ARG'");
       crb_set_token(snapshot);
     } else if (token->type == tASSIGN) {
@@ -244,19 +249,32 @@ bool parse_arg() {
       parse_arg_dash();
       return true;
     } else {
+      crb_node_rollback();
       print_message("- rolling back non terminal - matches part of LHS = ARG ARG'");
       crb_set_token(snapshot);
     }
   }
   // if gets to here, was not lhs = arg arg'. Try this alternative.
-  return parse_primary() && parse_arg_dash();
+  print_message("- checking for primary");    
+  bool result = parse_primary() && parse_arg_dash();
+  if (result) {
+    crb_node_commit();
+    print_message("- MATCH: ARG");
+  }
+  else {
+    print_message("- rolling back non terminal - doesn't match ARG");
+    crb_set_token(snapshot);    
+  }
+  return result;
 }
 
 // parse_arg_dash created to remove left-recursion of ARG op ARG statements.
 bool parse_arg_dash() {
+  print_message("- non-terminal: arg dash");
   Token* token = crb_curr_token();
+  print_token(token);
   if (token == NULL) {
-    return false;
+    return true;
   }
   switch (token->type) {
     case tDOT2:
@@ -423,11 +441,16 @@ bool parse_arg_dash() {
 }
 
 bool parse_primary() {
+  print_message("- non-terminal: primary");
   bool result = parse_literal() || parse_varname();
+  if (result) {
+    print_message("it's a literal or varname");
+    return result;
+  }
   if (!result) {
     Token* token = crb_curr_token();
     if (token == NULL) {
-      return false;
+      return true;
     }
     switch(token->type) {
     case tLPAREN:
@@ -490,7 +513,7 @@ bool parse_primary() {
     }
   }
   if (result)
-    print_message("- non-terminal: primary");
+    print_message("- non-terminal: primary found");
   return result;
 }
 
@@ -552,7 +575,7 @@ bool parse_lhs() {
     parse_primary();
     Token* curr_token = crb_curr_token();
     if (curr_token == NULL) {
-      return false;
+      return true;
     }
     switch(curr_token->type) {
       case tLBRACKET:
@@ -599,7 +622,7 @@ bool parse_varname() {
   */
   Token* token = crb_curr_token();
   if (token == NULL) {
-    return false;
+    return true;
   }
   switch (token->type) {
     case tIDENTIFIER:
@@ -634,32 +657,49 @@ void parse_mrhs() {
   */
 }
 
-void parse_call_args() {
-  /*
-  CALL_ARGS: ARGS
-      | ARGS [`,' ASSOCS] [`,' `*' ARG] [`,' `&' ARG]
-      | ASSOCS [`,' `*' ARG] [`,' `&' ARG]
-      | `*' ARG [`,' `&' ARG]
-      | `&' ARG
-      | COMMAND
-  */
+bool parse_call_args() {
+  print_message("- non-terminal: call args");
+  bool result = parse_args();
+  if (result)
+    print_message("- we've got args!");
+  return result;
+}
+
+bool parse_function_name() {
+  print_message("- non-terminal: function name");
+  Token* token = crb_curr_token();
+  print_token(token);
+  if (token == NULL) {
+    return true;
+  }
+  switch(token->type) {
+  case tIDENTIFIER:
+  case tCONSTANT:
+  case tFID:
+    next();
+    break;
+  default:
+    return false;
+  }
+  return true;
 }
 
 bool parse_args() {
-  /*
-  ARGS: ARG (`,' ARG)*
-  */
+  print_message("- non-terminal: args");
   if (parse_arg()) {
-    puts("looks like parse args");
     Token* token = crb_curr_token();
+    if (token == NULL) return true;
+    print_token(token);
     while (token->type == tCOMMA) {
       print_message("- terminal: ','");
       next();
       parse_arg();
     }
   } else {
+    print_message("- was not an arg");
     return false;
   }
+  print_message("- non-terminal: args found!");
   return true;
 }
 
@@ -734,6 +774,7 @@ bool parse_literal() {
     case tINTEGER:
       print_message("- non-terminal: literal");
       print_token(token);
+      crb_node_add_node(nLITERAL);
       next();
       break;
     default:
@@ -758,7 +799,9 @@ void parse_string() {
 }
 
 Token* next() {
+  print_message("advance_token");
   Token* token = crb_next_token();
+  print_token(token);
   if (token == NULL) {
     return NULL;
   }
@@ -779,7 +822,7 @@ void print_token(Token* token) {
   }
 }
 
-void print_message(char* string) {
+static void print_message(char* string) {
   if (parser->debug == true) {
     puts(string);
   }

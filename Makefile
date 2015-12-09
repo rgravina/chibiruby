@@ -5,7 +5,8 @@ TARGET = chibirb
 TARGET_TEST = chibirb_test
 SRC_FILES=\
   src/lexer.c \
-	src/parser.c
+	src/parser.c \
+	src/node.c
 SRC_FILES_TEST=\
 	test/tap.c \
 	test/test_lexer.c \

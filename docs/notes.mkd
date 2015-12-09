@@ -24,4 +24,4 @@ Ruby
 * Ruby docs (in Japanese) contain a [BNF description](http://docs.ruby-lang.org/ja/2.2.0/doc/spec=2fbnf.html) of the Ruby grammar.
 * Not sure why Ruby’s grammar allows both indentifiers and constants for class names, because it reports identifiers as an error. Maybe it's a common error so it is better to catch as a semantic error not a parse error?
 * Here's a nice simple [mark and sweep garbage collector in C](http://journal.stuffwithstuff.com/2013/12/08/babys-first-garbage-collector/).
-* You can dump the Ruby node tree from the CLI, e.g. `echo 'puts "Hello, World!"' | ruby --dump parsetree`
+* You can dump the Ruby node tree from the CLI, e.g. `echo 'puts "Hello, World!"' | ruby --dump parsetree_with_comment`
