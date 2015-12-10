@@ -62,8 +62,8 @@ void parse_program() {
   print_message("- non-terminal: program");
   crb_next_token();
   crb_node_init(parser->debug);
-  crb_node_begin();
   crb_node_add_node(nSCOPE);
+  crb_node_commit();
   parse_compound_statement();
 }
 

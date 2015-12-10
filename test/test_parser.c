@@ -96,6 +96,7 @@ void test_parser_simple_node() {
   parser->debug = true;
   crb_parser_parse();
   crb_free_parser();
+  crb_node_print_tree();
 }
 
 void crb_run_parser_tests() {
