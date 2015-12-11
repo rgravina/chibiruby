@@ -5,7 +5,7 @@
 #include "node.h"
 
 static const char *TypeString[] = {
-  "nSCOPE", "nLITERAL"
+  "nSCOPE", "nLITERAL", "nSTRING"
 };
 
 // for adding to before we know the production was matched.

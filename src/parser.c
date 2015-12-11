@@ -21,8 +21,8 @@ bool parse_arg_dash();
 void parse_command();
 bool parse_lhs();
 bool parse_varname();
-void parse_string();
-void parse_symbol();
+bool parse_string();
+bool parse_symbol();
 void print_token();
 bool parse_variable();
 bool parse_args();
@@ -442,9 +442,8 @@ bool parse_arg_dash() {
 
 bool parse_primary() {
   print_message("- non-terminal: primary");
-  bool result = parse_literal() || parse_varname();
+  bool result = parse_string() || parse_symbol() || parse_literal() || parse_varname();
   if (result) {
-    print_message("it's a literal or varname");
     return result;
   }
   if (!result) {
@@ -783,19 +782,31 @@ bool parse_literal() {
   return true;
 }
 
-void parse_symbol() {
-    /*
-      SYMBOL: `:'FNAME
-        | `:'`@'identifier
-        | `:'`@@'identifier
-        | `:'GLOBAL
-    */
+bool parse_symbol() {
+  print_message("- non-terminal: symbol");
+  Token* token = crb_curr_token();
+  if (token->type == tSYMBOL_BEGINING) {
+    next(); // tSYMBOL_BEGINING
+    next(); // tIDENTIFIER
+    crb_node_commit();
+    return true;
+  }
+  print_token(token);
+  return false;
 }
 
-void parse_string() {
-  /*
-  STRING          : LITERAL_STRING+
-  */
+bool parse_string() {
+  print_message("- non-terminal: string");
+  Token* token = crb_curr_token();
+  print_token(token);
+  if (token->type == tSTRING_BEGINING) {
+    next(); // tSTRING_CONTENT
+    next(); // tSTRING_END
+    crb_node_add_node(nSTRING);
+    crb_node_commit();
+    return true;
+  }
+  return false;
 }
 
 Token* next() {

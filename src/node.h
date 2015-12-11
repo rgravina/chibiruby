@@ -1,6 +1,6 @@
 #include <stdbool.h>
 
-typedef enum nodeType {nSCOPE, nLITERAL} NodeType;
+typedef enum nodeType {nSCOPE, nLITERAL, nSTRING} NodeType;
 typedef struct node {
   NodeType type;
   struct node* next;

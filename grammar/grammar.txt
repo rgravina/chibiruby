@@ -51,6 +51,8 @@ VARNAME: '@'identifier
          | identifier
 
 PRIMARY: LITERAL
+        | STRINGS
+        | SYMBOL
         | VARIABLE
         | '(' COMPSTMT ')'
         | '::' identifier
@@ -63,3 +65,8 @@ ARGDECL: '(' ARGLIST ')' | ARGLIST TERMINAL
 ARGLIST: identifier (',' identifier)*
 
 LITERAL: numeric
+
+STRINGS: LITERAL_STRING+
+LITERAL_STRING: : `"' any_char* `"'
+                | `'' any_char* `''
+SYMBOL: tSYMBOL_BEGINING any_char+
