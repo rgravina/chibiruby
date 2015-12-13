@@ -27,14 +27,13 @@ void crb_node_add_node(NodeType type) {
   node->type = type;
   node->next = NULL;
   if (tempNodeRoot == NULL) {
-    tempNodeRoot = tempNodeTail = node;    
+    tempNodeRoot = tempNodeTail = node;
   } else {
-    tempNodeTail->next = node;    
+    tempNodeTail->next = node;
     tempNodeTail = node;
   }
-
   if (tree->debug) {
-    printf("NODE: %s\n", TypeString[type]);
+    printf("adding node: %s\n", TypeString[type]);
   }
 }
 
@@ -86,4 +85,3 @@ void crb_node_print_tree() {
     }
   }
 }
-

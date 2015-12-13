@@ -91,7 +91,15 @@ void test_parser_expr_call() {
 }
 
 void test_parser_simple_node() {
-  char* code = "1\n:sym\n\"a\"";
+  char* code = "1\n:sym";
+  crb_init_parser(code);
+  crb_parser_parse();
+  crb_free_parser();
+  crb_node_print_tree();
+}
+
+void test_parser_string_node() {
+  char* code = "\"a\"";
   crb_init_parser(code);
   lexer->debug = true;
   parser->debug = true;
@@ -113,4 +121,5 @@ void crb_run_parser_tests() {
   test_parser_stmt_trailing_rescue();
   test_parser_expr_call();
   test_parser_simple_node();
+  test_parser_string_node();
 }
