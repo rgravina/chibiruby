@@ -84,4 +84,5 @@ void crb_node_print_tree() {
       node = node->next;
     }
   }
+  printf("%c", '\n');
 }

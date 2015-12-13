@@ -101,8 +101,6 @@ void test_parser_simple_node() {
 void test_parser_string_node() {
   char* code = "\"a\"";
   crb_init_parser(code);
-  lexer->debug = true;
-  parser->debug = true;
   crb_parser_parse();
   crb_free_parser();
   crb_node_print_tree();

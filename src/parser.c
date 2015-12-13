@@ -76,6 +76,7 @@ void parse_compound_statement() {
       parse_terminal();
     }
     token = crb_curr_token();
+    crb_node_commit();
   }
 }
 
@@ -83,7 +84,7 @@ bool parse_statement() {
   print_message("- non-terminal: stmt");
   bool result = parse_expression() && parse_statement_dash();
   if (result)
-    print_message("- MATCH: STMT");    
+    print_message("- MATCH: STMT");
   return result;
 }
 
@@ -117,7 +118,7 @@ bool parse_statement_dash() {
         parse_statement_dash();
       } else if (strcmp(token->value, "rescue") == 0) {
         print_message("- Found 'rescue'");
-        next();        
+        next();
         parse_statement();
         parse_statement_dash();
       }
@@ -159,10 +160,11 @@ bool parse_call() {
   Token* snapshot = crb_curr_token();
   if (parse_function_name()) {
     if (parse_call_args()) {
-      print_message("- MATCH: call");      
+      print_message("- MATCH: call");
       return true;
     }
     print_message("- rolling back non terminal - matches part of CALL");
+    crb_node_rollback();
     crb_set_token(snapshot);
   }
   return false;
@@ -239,8 +241,8 @@ bool parse_arg() {
   if (parse_lhs()) {
     token = crb_curr_token();
     if (token == NULL) {
-      crb_node_rollback();
       print_message("- rolling back non terminal - matches part of LHS = ARG ARG'");
+      crb_node_rollback();
       crb_set_token(snapshot);
     } else if (token->type == tASSIGN) {
       print_message("- Found '='");
@@ -249,21 +251,21 @@ bool parse_arg() {
       parse_arg_dash();
       return true;
     } else {
-      crb_node_rollback();
       print_message("- rolling back non terminal - matches part of LHS = ARG ARG'");
+      crb_node_rollback();
       crb_set_token(snapshot);
     }
   }
   // if gets to here, was not lhs = arg arg'. Try this alternative.
-  print_message("- checking for primary");    
+  print_message("- checking for primary");
   bool result = parse_primary() && parse_arg_dash();
   if (result) {
-    crb_node_commit();
     print_message("- MATCH: ARG");
   }
   else {
     print_message("- rolling back non terminal - doesn't match ARG");
-    crb_set_token(snapshot);    
+    crb_node_rollback();
+    crb_set_token(snapshot);
   }
   return result;
 }
@@ -604,6 +606,7 @@ bool parse_lhs() {
       default:
         // parse error or just lookahead couldn't match this, so go back.
         print_message("- rolling back non terminal - matches part of LHS: primary '[' or primary '.'");
+        crb_node_rollback();
         crb_set_token(snapshot);
         return false;
     }
@@ -788,7 +791,6 @@ bool parse_symbol() {
   if (token->type == tSYMBOL_BEGINING) {
     next(); // tSYMBOL_BEGINING
     next(); // tIDENTIFIER
-    crb_node_commit();
     return true;
   }
   print_token(token);
@@ -803,7 +805,6 @@ bool parse_string() {
     next(); // tSTRING_CONTENT
     next(); // tSTRING_END
     crb_node_add_node(nSTRING);
-    crb_node_commit();
     return true;
   }
   return false;
